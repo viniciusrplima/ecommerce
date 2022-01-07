@@ -1,0 +1,42 @@
+package com.pacheco.app.ecommerce.domain.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
+
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Embeddable
+@MappedSuperclass
+public class EmbeddableAddress {
+
+    @Column(name = "address_state")
+    private String state;
+
+    @Column(name = "address_city")
+    private String city;
+
+    @Column(name = "address_cep")
+    private String cep;
+
+    @Column(name = "address_street")
+    private String street;
+
+    @Column(name = "address_number")
+    private String number;
+
+    @Column(name = "address_district")
+    private String district;
+
+    @Column(name = "address_reference_point")
+    private String referencePoint;
+
+}
