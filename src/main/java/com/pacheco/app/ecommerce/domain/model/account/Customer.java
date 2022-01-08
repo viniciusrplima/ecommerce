@@ -8,7 +8,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import java.util.List;
 
-@Entity
+//@Entity
 public class Customer extends User {
 
     private String cpf;

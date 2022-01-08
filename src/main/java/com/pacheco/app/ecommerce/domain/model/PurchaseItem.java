@@ -14,7 +14,7 @@ import java.math.BigInteger;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+//@Entity
 public class PurchaseItem {
 
     @Id
