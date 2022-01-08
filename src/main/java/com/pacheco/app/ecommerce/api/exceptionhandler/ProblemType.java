@@ -9,6 +9,7 @@ public enum ProblemType {
     RESOURCE_NOT_FOUND("Resource Not Found"),
     INVALID_PARAM("Invalid Param"),
     INVALID_DATA("Invalid Data"),
+    MISSING_REQUEST_PART("Missing Request Part"),
     INCOMPREHENSIBLE_MESSAGE("Incomprehensible Message\n"),
     ENTITY_USED("Entity Used"),
     BUSINESS_ERROR("Business Rule Violation");

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -51,6 +52,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public static final String HTTP_MESSAGE_NOT_READABLE_MSG
             = "The requisition body is invalid. Verify syntax errors.";
 
+    public static final String RESOURCE_NOT_FOUND_MSG = "The resource '%s', that you have tried to access, do not exist.";
+
+    public static final String MSSING_REQUEST_PART_MSG = "The part '%s' are missing in the request";
+
     @Autowired
     private MessageSource messageSource;
 
@@ -59,11 +64,23 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
         ProblemType type = ProblemType.RESOURCE_NOT_FOUND;
-        String detail = String.format("O recurso %s, que você tentou acessar, é inexistente.", ex.getRequestURL());
+        String detail = String.format(RESOURCE_NOT_FOUND_MSG, ex.getRequestURL());
         Problem problem = createProblemBuilder(status, type, detail).build();
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
+
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestPart(
+            MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+        ProblemType type = ProblemType.MISSING_REQUEST_PART;
+        String detail = String.format(MSSING_REQUEST_PART_MSG, ex.getRequestPartName());
+        Problem problem = createProblemBuilder(status, type, detail).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
@@ -232,6 +249,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                     .status(status.value())
                     .build();
         }
+
+        ex.printStackTrace();
 
         return super.handleExceptionInternal(ex, body, headers, status, request);
     }

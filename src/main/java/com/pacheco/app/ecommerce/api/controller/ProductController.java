@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -30,7 +31,7 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product saveProduct(@Valid ProductDTO dto, @RequestParam("photo") MultipartFile photo) {
-        return productService.saveProduct(dto, photo);
+    public Product saveProduct(ProductDTO dto, @RequestParam("photo") Optional<MultipartFile> photo) {
+        return productService.saveProduct(dto, photo.orElse(null));
     }
 }
