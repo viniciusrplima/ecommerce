@@ -1,12 +1,13 @@
 package com.pacheco.app.ecommerce.util;
 
-import com.pacheco.app.ecommerce.domain.model.Address;
 import com.pacheco.app.ecommerce.domain.model.Product;
+import com.pacheco.app.ecommerce.domain.model.ProductType;
 import com.pacheco.app.ecommerce.domain.model.account.Admin;
 import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import com.pacheco.app.ecommerce.domain.model.account.Employee;
 import com.pacheco.app.ecommerce.domain.model.account.User;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
+import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Component
 @Profile("dev")
@@ -25,13 +27,40 @@ public class DummyData {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ProductTypeRepository productTypeRepository;
+
     @PostConstruct
     public void setUp() {
-        Product product = new Product();
-        product.setName("Bola de Basquete");
-        product.setPrice(BigDecimal.valueOf(120));
+        ProductType productType1 = new ProductType();
+        productType1.setName("Comida");
+        productType1.setDescription("Comidas entre carnes, frios e laticínios");
 
-        productRepository.save(product);
+        ProductType productType2 = new ProductType();
+        productType2.setName("Artigos Esportivos");
+        productType2.setDescription("Bolas, chuteiras, camisas, entre outros");
+
+        productTypeRepository.save(productType1);
+        productTypeRepository.save(productType2);
+
+        Product product1 = new Product();
+        product1.setName("Bola de Basquete");
+        product1.setPrice(BigDecimal.valueOf(120));
+        product1.setTypes(List.of(productType2));
+
+        Product product2 = new Product();
+        product2.setName("Sorvete");
+        product2.setPrice(BigDecimal.valueOf(5));
+        product2.setTypes(List.of(productType1));
+
+        Product product3 = new Product();
+        product3.setName("Bandeja de Frango");
+        product3.setPrice(BigDecimal.valueOf(10));
+        product3.setTypes(List.of(productType1));
+
+        productRepository.save(product1);
+        productRepository.save(product2);
+        productRepository.save(product3);
 
         User admin = new Admin();
         admin.setName("João da Silva");

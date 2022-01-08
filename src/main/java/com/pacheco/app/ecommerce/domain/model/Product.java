@@ -6,6 +6,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,5 +25,13 @@ public class Product {
 
     @Embedded
     private Image photo;
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_product_type",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_type_id")
+    )
+    private List<ProductType> types;
 
 }

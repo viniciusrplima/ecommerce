@@ -1,9 +1,9 @@
 package com.pacheco.app.ecommerce.domain.repository;
 
-import com.pacheco.app.ecommerce.domain.model.account.User;
+import com.pacheco.app.ecommerce.domain.model.ProductType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface ProductTypeRepository extends JpaRepository<ProductType, Long> {
 }
