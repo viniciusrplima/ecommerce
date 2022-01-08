@@ -9,7 +9,7 @@ privileges to properly run the tests.
 
 Create user with this command: 
 
-```roomsql
+```sql
 CREATE USER ecommerce WITH PASSWORD 'ecommerce' SUPERUSER;
 ```
 
@@ -21,14 +21,14 @@ test database with `test` prefix to enable for the database
 cleaner to clear all tables ensuring that it is not the 
 production database.
 
-```roomsql
+```sql
 CREATE DATABASE ecommerce;
 CREATE DATABASE ecommerce_test;
 ```
 
 Then, ensure all privileges to user on all used databases.
 
-```roomsql
+```sql
 GRANT ALL PRIVILEGES 
     ON DATABASE ecommerce, ecommerce_test 
     TO ecommerce;
