@@ -1,0 +1,1 @@
+web: java -Dspring.profiles.active=prod -cp target/classes:target/dependency/* com.pacheco.app.ecommerce.EcommerceApplication
