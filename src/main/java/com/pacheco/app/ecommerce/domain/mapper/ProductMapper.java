@@ -13,7 +13,10 @@ import static com.pacheco.app.ecommerce.util.ImageUtils.encodeToBase64;
 public class ProductMapper {
 
     public static Product toProduct(ProductDTO dto, MultipartFile photo) throws IOException {
-        Product product = new Product();
+        return mergeProduct(new Product(), dto, photo);
+    }
+
+    public static Product mergeProduct(Product product, ProductDTO dto, MultipartFile photo) throws IOException {
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());

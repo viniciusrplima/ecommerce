@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(Routes.PRODUCTS)
+@CrossOrigin
 public class ProductController {
 
     @Autowired
@@ -29,9 +30,28 @@ public class ProductController {
         return repository.findAll();
     }
 
+    @GetMapping("/{productId}")
+    public Product getProduct(@PathVariable Long productId) {
+        return productService.findById(productId);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product saveProduct(ProductDTO dto, @RequestParam("photo") Optional<MultipartFile> photo) {
+    public Product saveProduct(@Valid ProductDTO dto, @RequestParam("photo") Optional<MultipartFile> photo) {
         return productService.saveProduct(dto, photo.orElse(null));
+    }
+
+    @PutMapping("/{productId}")
+    public Product updateProduct(
+            @PathVariable Long productId, @Valid ProductDTO dto,
+            @RequestParam("photo") Optional<MultipartFile> photo) {
+
+        return productService.update(productId, dto, photo.orElse(null));
+    }
+
+    @DeleteMapping("/{productId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProduct(@PathVariable Long productId) {
+        productService.delete(productId);
     }
 }

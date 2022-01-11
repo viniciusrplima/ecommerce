@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(Routes.PRODUCT_TYPES)
+@CrossOrigin
 public class ProductTypeController {
 
     @Autowired

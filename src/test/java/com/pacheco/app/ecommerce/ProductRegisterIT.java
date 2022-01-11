@@ -7,8 +7,9 @@ import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import io.restassured.response.ValidatableResponse;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,8 +26,8 @@ import java.util.List;
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromJsonAsMap;
 import static com.pacheco.app.ecommerce.util.RestAssuredUtil.givenMultipartForm;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -37,6 +38,7 @@ import static org.hamcrest.Matchers.is;
 public class ProductRegisterIT {
 
     public static final String PRODUCT_JSON_FILENAME = "/json/product.json";
+    public static final String PRODUCT_VALIDATION_ERROR_JSON_FILENAME = "/json/product-with-validation-errors.json";
 
     @LocalServerPort
     private int port;
@@ -48,8 +50,9 @@ public class ProductRegisterIT {
     private ProductRepository productRepository;
 
     private int numProductsRegistred;
+    private Product samsungProd;
 
-    @BeforeEach
+    @Before
     public void setUp() {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
@@ -60,7 +63,7 @@ public class ProductRegisterIT {
     }
 
     @Test
-    public void whenGetProducts_thenReturnAllProductsRegistred() {
+    public void mustReturnAllProductsRegistred_whenGetProducts() {
         given()
             .accept(ContentType.JSON)
         .when()
@@ -70,7 +73,7 @@ public class ProductRegisterIT {
     }
 
     @Test
-    public void whenRegisterProduct_thenReturnStatus201AndProductMustBeActive() throws JsonProcessingException {
+    public void mustReturnStatus201AndProductMustBeActive_whenRegisterProduct() throws JsonProcessingException {
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_JSON_FILENAME))
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -81,16 +84,111 @@ public class ProductRegisterIT {
             .body("active", is(true));
     }
 
+    @Test
+    public void mustReturnProduct_whenGetProductById() {
+        given()
+            .pathParam("productId", samsungProd.getId())
+            .accept(ContentType.JSON)
+        .when()
+            .get("/{productId}")
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("id", is(samsungProd.getId().intValue()))
+            .body("name", is(samsungProd.getName()))
+            .body("description", is(samsungProd.getDescription()))
+            .body("price", is(samsungProd.getPrice().floatValue()))
+            .body("stock", is(samsungProd.getStock().intValue()))
+            .body("active", is(samsungProd.getActive().booleanValue()));
+    }
+
+    @Test
+    public void mustReturnStatus404_whenGetInexistentProduct() {
+        int inexistentProductId = 9999;
+
+        given()
+            .pathParam("productId", inexistentProductId)
+            .accept(ContentType.JSON)
+        .when()
+            .get("/{productId}")
+        .then()
+            .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void mustReturnValidationErrors_whenSaveProductWithValidationErrors() throws JsonProcessingException {
+        ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.MULTIPART)
+        .when()
+            .post()
+        .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        List<String> userResponses = response.extract().jsonPath().getList("objects.userMessage");
+        List<String> propertyNames = response.extract().jsonPath().getList("objects.name");
+
+        assertTrue(userResponses.stream().anyMatch(containsString("blank")::matches));
+        assertTrue(userResponses.stream().anyMatch(containsString("greater than")::matches));
+        assertTrue(propertyNames.containsAll(List.of("name", "description", "stock", "price")));
+    }
+
+    @Test
+    public void mustReturnProduct_whenUpdateProduct() throws JsonProcessingException {
+        int productId = samsungProd.getId().intValue();
+
+        givenMultipartForm(getContentFromJsonAsMap(PRODUCT_JSON_FILENAME))
+            .pathParam("productId", productId)
+            .accept(ContentType.JSON)
+            .contentType(ContentType.MULTIPART)
+        .when()
+            .put("/{productId}")
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("id", is(productId));
+    }
+
+    @Test
+    public void mustReturnValidationErrors_whenUpdateProductWithValidationErrors() throws JsonProcessingException {
+        int productId = samsungProd.getId().intValue();
+
+        ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
+            .pathParam("productId", productId)
+            .accept(ContentType.JSON)
+            .contentType(ContentType.MULTIPART)
+        .when()
+            .put("/{productId}")
+        .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        List<String> userResponses = response.extract().jsonPath().getList("objects.userMessage");
+        List<String> propertyNames = response.extract().jsonPath().getList("objects.name");
+
+        assertTrue(userResponses.stream().anyMatch(containsString("blank")::matches));
+        assertTrue(userResponses.stream().anyMatch(containsString("greater than")::matches));
+        assertTrue(propertyNames.containsAll(List.of("name", "description", "stock", "price")));
+    }
+
+    @Test
+    public void mustReturnStatus204_whenDeleteProduct() {
+        given()
+            .pathParam("productId", samsungProd.getId())
+            .accept(ContentType.JSON)
+        .when()
+            .delete("/{productId}")
+        .then()
+            .statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
     private void prepareData() {
         List<Product> productList = new ArrayList<>();
 
-        Product product1 = new Product();
-        product1.setName("Samsung J1 Mini");
-        product1.setDescription("RAM: 2GB, CPU: 1.5GHz, HD: 16GB");
-        product1.setPrice(BigDecimal.valueOf(650));
-        product1.setActive(Boolean.TRUE);
-        product1.setStock(BigInteger.valueOf(35));
-        productList.add(product1);
+        samsungProd = new Product();
+        samsungProd.setName("Samsung J1 Mini");
+        samsungProd.setDescription("RAM: 2GB, CPU: 1.5GHz, HD: 16GB");
+        samsungProd.setPrice(BigDecimal.valueOf(650));
+        samsungProd.setActive(Boolean.TRUE);
+        samsungProd.setStock(BigInteger.valueOf(35));
+        productList.add(samsungProd);
 
         Product product2 = new Product();
         product2.setName("Monark aro 27");
@@ -100,7 +198,7 @@ public class ProductRegisterIT {
         product2.setStock(BigInteger.valueOf(12));
         productList.add(product2);
 
-        productList.forEach(productRepository::save);
+        productRepository.saveAll(productList);
         numProductsRegistred = productList.size();
     }
 
