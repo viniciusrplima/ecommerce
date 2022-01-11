@@ -17,7 +17,7 @@ The superuser is necessary because the cleaning of database
 need to disable constraints.
 
 After this, create the databases for the system. Create the
-test database with `test` prefix to enable for the database
+test database with `test` suffix to enable for the database
 cleaner to clear all tables ensuring that it is not the 
 production database.
 
