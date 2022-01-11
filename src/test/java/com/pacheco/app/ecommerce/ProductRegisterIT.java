@@ -5,15 +5,10 @@ import com.pacheco.app.ecommerce.api.controller.Routes;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
-import com.pacheco.app.ecommerce.util.ResourceUtil;
 import io.restassured.RestAssured;
-import io.restassured.config.EncoderConfig;
-import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,12 +21,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromJsonAsMap;
-import static io.restassured.RestAssured.config;
+import static com.pacheco.app.ecommerce.util.RestAssuredUtil.givenMultipartForm;
 import static io.restassured.RestAssured.given;
-import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
@@ -56,7 +49,7 @@ public class ProductRegisterIT {
 
     private int numProductsRegistred;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
@@ -86,31 +79,6 @@ public class ProductRegisterIT {
         .then()
             .statusCode(HttpStatus.CREATED.value())
             .body("active", is(true));
-    }
-
-    private RequestSpecification givenMultipartForm(Map<String, ?> form) {
-        RequestSpecification formSpec = given();
-
-        for (String key : form.keySet()) {
-            Object value = form.get(key);
-
-            if (value instanceof Number) {
-                formSpec = formSpec.multiPart(key, ((Number) value).toString());
-            }
-            else if (value instanceof String) {
-                formSpec = formSpec.multiPart(key, (String) value);
-            }
-            else {
-                throw new RuntimeException("Invalid param type");
-            }
-        }
-
-        return formSpec;
-    }
-
-    private RestAssuredConfig multipartConfig() {
-        return config().encoderConfig(encoderConfig()
-                .encodeContentTypeAs("multipart/form-data", ContentType.TEXT));
     }
 
     private void prepareData() {
