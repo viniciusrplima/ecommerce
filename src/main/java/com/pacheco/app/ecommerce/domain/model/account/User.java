@@ -1,5 +1,6 @@
 package com.pacheco.app.ecommerce.domain.model.account;
 
+import com.pacheco.app.ecommerce.domain.security.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,14 +12,17 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-//@Entity
+@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "auth_user")
-public abstract class User {
+public class User {
 
     @Id
     private String email;
     private String password;
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
 }
