@@ -1,6 +1,5 @@
 package com.pacheco.app.ecommerce.domain.model.account;
 
-import com.pacheco.app.ecommerce.domain.security.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,11 +17,15 @@ import javax.persistence.*;
 public class User {
 
     @Id
+    @Column(updatable = false)
     private String email;
+
+    @Column(nullable = false)
     private String password;
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role;
 
 }

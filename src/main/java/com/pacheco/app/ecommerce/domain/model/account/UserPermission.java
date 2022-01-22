@@ -1,4 +1,4 @@
-package com.pacheco.app.ecommerce.domain.security;
+package com.pacheco.app.ecommerce.domain.model.account;
 
 import lombok.Getter;
 

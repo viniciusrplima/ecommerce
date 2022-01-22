@@ -8,23 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtConfig jwtConfig;
@@ -36,21 +30,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public void configure(WebSecurity web) {
-        web.ignoring().antMatchers(
-                "/favicon.ico",
-                "/robots.txt",
-                "/manifest.webmanifest",
-                "/sw.js",
-                "/offline.html",
-                "/icons/**",
-                "/images/**",
-                "/styles/**",
-                "/frontend/**",
-                "/frontend-es5/**", "/frontend-es6/**");
-    }
-
-    @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .cors().disable()
@@ -59,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), jwtConfig, jwtTokenUtil))
             .authorizeRequests()
-            .antMatchers("/login", "/logout", "/register").permitAll()
+            .antMatchers(Routes.REGISTER).permitAll()
             .antMatchers(Routes.PRODUCTS, Routes.PRODUCT_TYPES).authenticated()
             .anyRequest().authenticated();
     }
@@ -68,17 +47,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
-    }
-
-    @Override
-    @Bean
-    protected UserDetailsService userDetailsService() {
-        UserDetails admin = User.builder()
-            .username("vinicius")
-            .password(passwordEncoder.encode("123"))
-            .roles("ADMIN")
-            .build();
-
-        return new InMemoryUserDetailsManager(admin);
     }
 }
