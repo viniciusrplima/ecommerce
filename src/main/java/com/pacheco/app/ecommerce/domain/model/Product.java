@@ -1,5 +1,6 @@
 package com.pacheco.app.ecommerce.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,6 +33,7 @@ public class Product {
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "product_type_id")
     )
+    @JsonIgnore
     private List<ProductType> types;
 
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +27,11 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public List<Product> getProducts() {
-        return repository.findAll();
+    public List<Product> getProducts(@RequestParam(value = "q", required = false) String query,
+                                     @RequestParam(value = "limit", required = false) Long limit,
+                                     @RequestParam(value = "page", required = false) Long page,
+                                     @RequestParam(value = "type", required = false) Long type) {
+        return repository.findWithAttrbutes(query, type, limit, page);
     }
 
     @GetMapping("/{productId}")

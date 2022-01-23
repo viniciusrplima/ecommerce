@@ -22,7 +22,6 @@ public class ProductMapper {
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock() != null ? dto.getStock() : BigInteger.ZERO);
         product.setActive(dto.getActive() != null ? dto.getActive() : Boolean.TRUE);
-        product.setTypes(dto.getTypes());
 
         if (photo != null) {
             product.setPhoto(new Image(encodeToBase64(photo)));

@@ -31,6 +31,6 @@ public class ProductDTO {
     @PositiveOrZero
     private BigInteger stock;
     private Boolean active;
-    private List<ProductType> types;
+    private List<Long> types;
 
 }
