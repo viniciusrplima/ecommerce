@@ -83,6 +83,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+
+
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -230,6 +232,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         String detail = MSG_ERRO_GENERICO_USUARIO_FINAL;
         Problem problem = createProblemBuilder(status, type, detail).build();
 
+        e.printStackTrace();
+
         return handleExceptionInternal(e, problem, new HttpHeaders(), status, request);
     }
 
@@ -250,8 +254,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                     .status(status.value())
                     .build();
         }
-
-        ex.printStackTrace();
 
         return super.handleExceptionInternal(ex, body, headers, status, request);
     }
