@@ -2,6 +2,7 @@ package com.pacheco.app.ecommerce.util;
 
 import io.restassured.specification.RequestSpecification;
 
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -20,11 +21,25 @@ public class RestAssuredUtil {
             else if (value instanceof String) {
                 formSpec = formSpec.multiPart(key, (String) value);
             }
+            else if (value instanceof List) {
+                formSpec = formSpec.multiPart(key, listToMultipartParam((List) value));
+            }
             else {
                 throw new RuntimeException("Invalid param type");
             }
         }
 
         return formSpec;
+    }
+
+    private static String listToMultipartParam(List<Object> values) {
+        String str = "";
+        for (Object o : values) {
+            if (!str.isBlank()) {
+                str += ",";
+            }
+            str += o.toString();
+        }
+        return str;
     }
 }

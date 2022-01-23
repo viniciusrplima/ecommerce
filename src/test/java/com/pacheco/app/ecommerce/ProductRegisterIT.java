@@ -3,7 +3,9 @@ package com.pacheco.app.ecommerce;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pacheco.app.ecommerce.api.controller.Routes;
 import com.pacheco.app.ecommerce.domain.model.Product;
+import com.pacheco.app.ecommerce.domain.model.ProductType;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
+import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
 import com.pacheco.app.ecommerce.util.AuthenticationUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
@@ -53,6 +55,9 @@ public class ProductRegisterIT {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductTypeRepository productTypeRepository;
 
     private int numProductsRegistred;
     private Product samsungProd;
@@ -138,7 +143,7 @@ public class ProductRegisterIT {
 
         assertTrue(userResponses.stream().anyMatch(containsString("blank")::matches));
         assertTrue(userResponses.stream().anyMatch(containsString("greater than")::matches));
-        assertTrue(propertyNames.containsAll(List.of("name", "description", "stock", "price")));
+        assertTrue(propertyNames.containsAll(List.of("name", "description", "stock", "price", "types")));
     }
 
     @Test
@@ -212,6 +217,12 @@ public class ProductRegisterIT {
 
         productRepository.saveAll(productList);
         numProductsRegistred = productList.size();
+
+        ProductType defaultProductType = new ProductType();
+        defaultProductType.setName("default");
+        defaultProductType.setDescription("default description");
+
+        productTypeRepository.save(defaultProductType);
     }
 
 }

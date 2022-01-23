@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
+import javax.validation.groups.ConvertGroup;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -31,6 +32,8 @@ public class ProductDTO {
     @PositiveOrZero
     private BigInteger stock;
     private Boolean active;
+
+    @NotEmpty
     private List<Long> types;
 
 }

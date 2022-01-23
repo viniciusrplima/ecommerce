@@ -2,5 +2,6 @@
     "name": "Bola de Basquete",
     "description": "diâmetro: 30cm, cor: laranja",
     "price": 85.0,
-    "stock": 50
+    "stock": 50,
+    "types": [1]
 }
