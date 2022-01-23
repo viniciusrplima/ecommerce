@@ -6,6 +6,7 @@ import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
+import com.pacheco.app.ecommerce.util.AuthenticationUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -39,6 +40,7 @@ import static org.junit.Assert.assertTrue;
 @TestPropertySource("/application-test.properties")
 public class ProductTypeRegisterIT {
 
+    public static final String AUTH_HEADER_PARAM = "Authorization";
     public static final String PRODUCT_TYPE_FILE = "/json/product-type.json";
     public static final String PRODUCT_TYPE_VALIDATION_ERRORS_FILE = "/json/product-type-with-validation-errors.json";
     @LocalServerPort
@@ -53,18 +55,22 @@ public class ProductTypeRegisterIT {
     @Autowired
     ProductRepository productRepository;
 
+    @Autowired
+    AuthenticationUtil authenticationUtil;
+
     private int numProductTypes;
     private ProductType comidaProdType;
     private ProductType withDependentProdType;
 
     @Before
     public void setUp() {
+        databaseCleaner.clearTablesAndResetSequences();
+        authenticationUtil.setUp();
+        prepareData();
+
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
         RestAssured.basePath = Routes.PRODUCT_TYPES;
-
-        databaseCleaner.clearTablesAndResetSequences();
-        prepareData();
     }
 
     @Test
@@ -109,6 +115,7 @@ public class ProductTypeRegisterIT {
     @Test
     public void mustReturnStatus201_whenSaveProductType() throws JsonProcessingException {
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_FILE))
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
         .when()
@@ -120,6 +127,7 @@ public class ProductTypeRegisterIT {
     @Test
     public void mustReturnValidationErrors_whenSaveAProductTypeWithParameterErrors() throws JsonProcessingException {
         ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
         .when()
@@ -137,6 +145,7 @@ public class ProductTypeRegisterIT {
     @Test
     public void mustReturnStatus200andSameId_whenUpdateProductType() throws JsonProcessingException {
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_FILE))
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .pathParam("productTypeId", comidaProdType.getId())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -150,6 +159,7 @@ public class ProductTypeRegisterIT {
     @Test
     public void mustReturnValidationErrors_whenUpdateAProductTypeWithParameterErrors() throws JsonProcessingException {
         ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .pathParam("productTypeId", comidaProdType.getId())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -170,6 +180,7 @@ public class ProductTypeRegisterIT {
         long productTypeId = comidaProdType.getId();
 
         given()
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .accept(ContentType.JSON)
             .pathParam("productTypeId", productTypeId)
         .when()
@@ -183,6 +194,7 @@ public class ProductTypeRegisterIT {
         long productTypeId = withDependentProdType.getId();
 
         given()
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .accept(ContentType.JSON)
             .pathParam("productTypeId", productTypeId)
         .when()

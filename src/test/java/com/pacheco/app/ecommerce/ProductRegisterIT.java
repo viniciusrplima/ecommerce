@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pacheco.app.ecommerce.api.controller.Routes;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
+import com.pacheco.app.ecommerce.util.AuthenticationUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -37,6 +38,7 @@ import static org.junit.Assert.assertTrue;
 @TestPropertySource("/application-test.properties")
 public class ProductRegisterIT {
 
+    public static final String AUTH_HEADER_PARAM = "Authorization";
     public static final String PRODUCT_JSON_FILENAME = "/json/product.json";
     public static final String PRODUCT_VALIDATION_ERROR_JSON_FILENAME = "/json/product-with-validation-errors.json";
 
@@ -47,6 +49,9 @@ public class ProductRegisterIT {
     DatabaseCleaner databaseCleaner;
 
     @Autowired
+    AuthenticationUtil authenticationUtil;
+
+    @Autowired
     private ProductRepository productRepository;
 
     private int numProductsRegistred;
@@ -54,12 +59,13 @@ public class ProductRegisterIT {
 
     @Before
     public void setUp() {
+        databaseCleaner.clearTablesAndResetSequences();
+        authenticationUtil.setUp();
+        prepareData();
+
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
         RestAssured.basePath = Routes.PRODUCTS;
-
-        databaseCleaner.clearTablesAndResetSequences();
-        prepareData();
     }
 
     @Test
@@ -69,12 +75,14 @@ public class ProductRegisterIT {
         .when()
             .get()
         .then()
+            .statusCode(HttpStatus.OK.value())
             .body("", hasSize(numProductsRegistred));
     }
 
     @Test
     public void mustReturnStatus201AndProductMustBeActive_whenRegisterProduct() throws JsonProcessingException {
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_JSON_FILENAME))
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
         .when()
@@ -117,6 +125,7 @@ public class ProductRegisterIT {
     @Test
     public void mustReturnValidationErrors_whenSaveProductWithValidationErrors() throws JsonProcessingException {
         ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
         .when()
@@ -137,6 +146,7 @@ public class ProductRegisterIT {
         int productId = samsungProd.getId().intValue();
 
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_JSON_FILENAME))
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .pathParam("productId", productId)
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -152,6 +162,7 @@ public class ProductRegisterIT {
         int productId = samsungProd.getId().intValue();
 
         ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .pathParam("productId", productId)
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -171,6 +182,7 @@ public class ProductRegisterIT {
     @Test
     public void mustReturnStatus204_whenDeleteProduct() {
         given()
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
             .pathParam("productId", samsungProd.getId())
             .accept(ContentType.JSON)
         .when()
