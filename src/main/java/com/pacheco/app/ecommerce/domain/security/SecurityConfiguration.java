@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,7 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Configuration
@@ -48,10 +46,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), jwtConfig, jwtTokenUtil))
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeRequests()
             .antMatchers(Routes.REGISTER).permitAll()
+            .antMatchers(HttpMethod.GET, generalizeRoutes(Routes.USERS)).hasAnyAuthority(UserPermission.USER_READ.getPermission())
+            .antMatchers(HttpMethod.POST, generalizeRoutes(Routes.USERS)).hasAnyAuthority(UserPermission.USER_WRITE.getPermission())
+            .antMatchers(HttpMethod.PUT, generalizeRoutes(Routes.USERS)).hasAnyAuthority(UserPermission.USER_WRITE.getPermission())
+            .antMatchers(HttpMethod.DELETE, generalizeRoutes(Routes.USERS)).hasAnyAuthority(UserPermission.USER_DELETE.getPermission())
             .antMatchers(HttpMethod.GET, generalizeRoutes(Routes.PRODUCTS, Routes.PRODUCT_TYPES)).permitAll()
             .antMatchers(HttpMethod.POST, generalizeRoutes(Routes.PRODUCTS, Routes.PRODUCT_TYPES)).hasAnyAuthority(UserPermission.PRODUCT_WRITE.getPermission())
             .antMatchers(HttpMethod.PUT, generalizeRoutes(Routes.PRODUCTS, Routes.PRODUCT_TYPES)).hasAnyAuthority(UserPermission.PRODUCT_WRITE.getPermission())

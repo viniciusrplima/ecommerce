@@ -1,7 +1,6 @@
 package com.pacheco.app.ecommerce.domain.security.jwt;
 
 import com.pacheco.app.ecommerce.domain.service.AuthenticationUserDetailsService;
-import com.pacheco.app.ecommerce.domain.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

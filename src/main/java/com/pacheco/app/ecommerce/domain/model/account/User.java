@@ -17,7 +17,6 @@ import javax.persistence.*;
 public class User {
 
     @Id
-    @Column(updatable = false)
     private String email;
 
     @Column(nullable = false)
