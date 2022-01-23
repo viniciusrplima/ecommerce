@@ -1,5 +1,6 @@
 package com.pacheco.app.ecommerce.api.dto;
 
+import com.pacheco.app.ecommerce.core.validation.Groups;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,8 @@ public class UserDTO {
     @Length(min = 6, max = 100)
     private String password;
     private String name;
+
+    @NotBlank(groups = Groups.UserRole.class)
     private String role;
 
 }
