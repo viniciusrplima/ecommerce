@@ -5,6 +5,7 @@ import com.pacheco.app.ecommerce.util.AuthenticationUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,9 +16,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
+
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -29,6 +33,7 @@ public class UserRegisterIT {
 
     public static final String AUTH_HEADER_PARAM = "Authorization";
     public static final String USER_JSON_FILE = "/json/user.json";
+    public static final String USER_VALIDATION_ERRORS_JSON_FILE = "/json/user-with-validation-errors.json";
 
     @LocalServerPort
     private int port;
@@ -72,6 +77,26 @@ public class UserRegisterIT {
             .post()
         .then()
             .statusCode(HttpStatus.CREATED.value());
+    }
+
+    @Test
+    public void mustReturnValidationErrors_whenSaveUserWithValidationErrors() {
+        ValidatableResponse response = given()
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .body(getContentFromResource(USER_VALIDATION_ERRORS_JSON_FILE))
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+        .when()
+            .post()
+        .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        List<String> userResponses = response.extract().jsonPath().getList("objects.userMessage");
+        List<String> propertyNames = response.extract().jsonPath().getList("objects.name");
+
+        assertTrue(userResponses.stream().anyMatch(containsString("valid")::matches));
+        assertTrue(userResponses.stream().anyMatch(containsString("blank")::matches));
+        assertTrue(propertyNames.containsAll(List.of("email", "password", "role")));
     }
 
 }
