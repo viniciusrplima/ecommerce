@@ -8,6 +8,10 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
+import static com.pacheco.app.ecommerce.core.validation.ValidationPatterns.CPF;
+import static com.pacheco.app.ecommerce.core.validation.ValidationPatterns.PHONE_NUMBER;
 
 @Getter
 @Setter
@@ -25,5 +29,13 @@ public class UserDTO {
 
     @NotBlank(groups = Groups.UserRole.class)
     private String role;
+
+    @NotBlank(groups = Groups.ConsumerInfo.class)
+    @Pattern(regexp = CPF, groups = Groups.ConsumerInfo.class)
+    private String cpf;
+
+    @NotBlank(groups = Groups.ConsumerInfo.class)
+    @Pattern(regexp = PHONE_NUMBER, groups = Groups.ConsumerInfo.class)
+    private String phone;
 
 }

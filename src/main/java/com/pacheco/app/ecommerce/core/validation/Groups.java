@@ -4,4 +4,6 @@ public interface Groups {
 
     public interface UserRole {}
 
+    public interface ConsumerInfo {}
+
 }
