@@ -10,7 +10,7 @@ public enum ProblemType {
     INVALID_PARAM("Invalid Param"),
     INVALID_DATA("Invalid Data"),
     MISSING_REQUEST_PART("Missing Request Part"),
-    INCOMPREHENSIBLE_MESSAGE("Incomprehensible Message\n"),
+    INCOMPREHENSIBLE_MESSAGE("Incomprehensible Message"),
     ENTITY_USED("Entity Used"),
     BUSINESS_ERROR("Business Rule Violation");
 

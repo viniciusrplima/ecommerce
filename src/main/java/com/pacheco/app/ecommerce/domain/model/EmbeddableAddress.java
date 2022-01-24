@@ -1,5 +1,8 @@
 package com.pacheco.app.ecommerce.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +19,7 @@ import javax.persistence.MappedSuperclass;
 @NoArgsConstructor
 @Embeddable
 @MappedSuperclass
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EmbeddableAddress {
 
     @Column(name = "address_state")
