@@ -1,7 +1,9 @@
 package com.pacheco.app.ecommerce.api.controller;
 
+import com.pacheco.app.ecommerce.api.mapper.AddressMapper;
 import com.pacheco.app.ecommerce.api.model.input.AddressInput;
 import com.pacheco.app.ecommerce.api.model.input.UserInput;
+import com.pacheco.app.ecommerce.api.model.output.AddressModel;
 import com.pacheco.app.ecommerce.core.validation.Groups;
 import com.pacheco.app.ecommerce.domain.model.Address;
 import com.pacheco.app.ecommerce.domain.model.account.User;
@@ -27,6 +29,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AddressMapper addressMapper;
+
     @PostMapping(Routes.REGISTER)
     @ResponseStatus(HttpStatus.CREATED)
     public User register(@RequestBody @Validated({Default.class, Groups.ConsumerInfo.class}) UserInput userDTO) {
@@ -34,19 +39,21 @@ public class UserController {
     }
 
     @GetMapping(Routes.USERS + ADDRESSES)
-    public List<Address> getAddresses() {
-        return userService.getUserAddresses();
+    public List<AddressModel> getAddresses() {
+        return addressMapper.toRepresentationList(userService.getUserAddresses());
     }
 
     @PostMapping(Routes.USERS + ADDRESSES)
     @ResponseStatus(HttpStatus.CREATED)
-    public Address registerUserAdress(@RequestBody @Valid AddressInput addressDTO) {
-        return userService.registerAddress(addressDTO);
+    public AddressModel registerUserAdress(@RequestBody @Valid AddressInput addressDTO) {
+        Address address = userService.registerAddress(addressMapper.toModel(addressDTO));
+        return addressMapper.toRepresentation(address);
     }
 
     @PutMapping(Routes.USERS + ADDRESSES + "/{addressId}")
-    public Address updateAddress(@PathVariable Long addressId, @RequestBody @Valid AddressInput addressDTO) {
-        return userService.updateAddress(addressId, addressDTO);
+    public AddressModel updateAddress(@PathVariable Long addressId, @RequestBody @Valid AddressInput addressDTO) {
+        Address address = userService.updateAddress(addressId, addressMapper.toModel(addressDTO));
+        return addressMapper.toRepresentation(address);
     }
 
     @DeleteMapping(Routes.USERS + ADDRESSES + "/{addressId}")

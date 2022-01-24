@@ -1,6 +1,5 @@
 package com.pacheco.app.ecommerce.domain.service;
 
-import com.pacheco.app.ecommerce.api.model.input.AddressInput;
 import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.domain.exception.BusinessException;
 import com.pacheco.app.ecommerce.domain.exception.UserAddressNotFound;
@@ -20,7 +19,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.pacheco.app.ecommerce.api.mapper.AddressMapper.toAddress;
 import static com.pacheco.app.ecommerce.api.mapper.UserMapper.*;
 
 @Service
@@ -87,9 +85,8 @@ public class UserService {
     }
 
     @Transactional
-    public Address registerAddress(AddressInput addressDTO) {
+    public Address registerAddress(Address address) {
         Customer customer = getCurrentCustomer();
-        Address address = toAddress(addressDTO);
 
         address = addressRepository.save(address);
         customer.getAddresses().add(address);
@@ -99,17 +96,17 @@ public class UserService {
     }
 
     @Transactional
-    public Address updateAddress(Long addressId, AddressInput addressDTO) {
+    public Address updateAddress(Long addressId, Address address) {
         Customer customer = getCurrentCustomer();
-        Optional<Address> address = customer.getAddresses().stream()
+        Optional<Address> oldAddress = customer.getAddresses().stream()
                 .filter(add -> add.getId().equals(addressId))
                 .findFirst();
 
-        if (address.isEmpty()) {
+        if (oldAddress.isEmpty()) {
             throw new UserAddressNotFound(addressId, customer.getEmail());
         }
 
-        Address newAddress = toAddress(addressDTO);
+        Address newAddress = address;
         newAddress.setId(addressId);
 
         return addressRepository.save(newAddress);
