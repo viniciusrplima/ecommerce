@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,16 +35,19 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Transactional
     public User registerConsumer(UserDTO customerDTO) {
         Customer customer = toCustomer(customerDTO);
         return saveUser(customer);
     }
 
+    @Transactional
     public User register(UserDTO userDTO) {
         User user = toUser(userDTO);
         return saveUser(user);
     }
 
+    @Transactional
     public User saveUser(User user) {
         Optional<User> alreadyRegistredUser = userRepository.findByEmail(user.getEmail());
 
@@ -82,6 +86,7 @@ public class UserService {
         return getCurrentCustomer().getAddresses();
     }
 
+    @Transactional
     public Address registerAddress(AddressDTO addressDTO) {
         Customer customer = getCurrentCustomer();
         Address address = toAddress(addressDTO);
@@ -93,6 +98,7 @@ public class UserService {
         return address;
     }
 
+    @Transactional
     public Address updateAddress(Long addressId, AddressDTO addressDTO) {
         Customer customer = getCurrentCustomer();
         Optional<Address> address = customer.getAddresses().stream()
@@ -109,6 +115,7 @@ public class UserService {
         return addressRepository.save(newAddress);
     }
 
+    @Transactional
     public void removeAddress(Long addressId) {
         Customer customer = getCurrentCustomer();
         Optional<Address> address = customer.getAddresses().stream()

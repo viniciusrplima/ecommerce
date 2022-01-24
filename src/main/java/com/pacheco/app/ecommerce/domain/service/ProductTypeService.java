@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 
@@ -29,10 +30,12 @@ public class ProductTypeService {
         return repository.findById(id).orElseThrow(() -> new ProductTypeNotFoundException(id));
     }
 
+    @Transactional
     public ProductType save(ProductTypeDTO dto, MultipartFile icon) {
         return repository.save(toProductType(dto, icon));
     }
 
+    @Transactional
     public ProductType update(Long id, ProductTypeDTO productTypeDTO, MultipartFile icon) {
         ProductType productType = findById(id);
         productType = mergeProductType(productType, productTypeDTO, icon);
@@ -40,6 +43,7 @@ public class ProductTypeService {
         return repository.save(productType);
     }
 
+    @Transactional
     public void delete(Long id) {
         try {
             repository.deleteById(id);
