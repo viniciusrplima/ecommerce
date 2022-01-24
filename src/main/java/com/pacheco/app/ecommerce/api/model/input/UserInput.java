@@ -1,4 +1,4 @@
-package com.pacheco.app.ecommerce.api.dto;
+package com.pacheco.app.ecommerce.api.model.input;
 
 import com.pacheco.app.ecommerce.core.validation.Groups;
 import lombok.Getter;
@@ -16,7 +16,7 @@ import static com.pacheco.app.ecommerce.core.validation.ValidationPatterns.PHONE
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDTO {
+public class UserInput {
 
     @NotBlank
     @Email

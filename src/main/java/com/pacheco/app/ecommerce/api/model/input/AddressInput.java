@@ -1,4 +1,4 @@
-package com.pacheco.app.ecommerce.api.dto;
+package com.pacheco.app.ecommerce.api.model.input;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import static com.pacheco.app.ecommerce.core.validation.ValidationPatterns.CEP;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AddressDTO {
+public class AddressInput {
 
     @NotBlank
     private String state;

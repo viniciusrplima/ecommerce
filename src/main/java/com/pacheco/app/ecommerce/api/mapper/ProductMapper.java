@@ -1,6 +1,6 @@
-package com.pacheco.app.ecommerce.domain.mapper;
+package com.pacheco.app.ecommerce.api.mapper;
 
-import com.pacheco.app.ecommerce.api.dto.ProductDTO;
+import com.pacheco.app.ecommerce.api.model.input.ProductInput;
 import com.pacheco.app.ecommerce.domain.model.Image;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,11 +12,11 @@ import static com.pacheco.app.ecommerce.util.ImageUtils.encodeToBase64;
 
 public class ProductMapper {
 
-    public static Product toProduct(ProductDTO dto, MultipartFile photo) throws IOException {
+    public static Product toProduct(ProductInput dto, MultipartFile photo) throws IOException {
         return mergeProduct(new Product(), dto, photo);
     }
 
-    public static Product mergeProduct(Product product, ProductDTO dto, MultipartFile photo) throws IOException {
+    public static Product mergeProduct(Product product, ProductInput dto, MultipartFile photo) throws IOException {
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());

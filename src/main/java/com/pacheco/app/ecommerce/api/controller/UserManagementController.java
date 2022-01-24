@@ -1,6 +1,6 @@
 package com.pacheco.app.ecommerce.api.controller;
 
-import com.pacheco.app.ecommerce.api.dto.UserDTO;
+import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.core.validation.Groups;
 import com.pacheco.app.ecommerce.domain.model.account.User;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
@@ -30,7 +30,7 @@ public class UserManagementController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User registerUser(@RequestBody @Validated({Default.class, Groups.UserRole.class}) UserDTO userDTO) {
+    public User registerUser(@RequestBody @Validated({Default.class, Groups.UserRole.class}) UserInput userDTO) {
         return userService.register(userDTO);
     }
 }

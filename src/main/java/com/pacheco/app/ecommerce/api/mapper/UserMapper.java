@@ -1,13 +1,13 @@
-package com.pacheco.app.ecommerce.domain.mapper;
+package com.pacheco.app.ecommerce.api.mapper;
 
-import com.pacheco.app.ecommerce.api.dto.UserDTO;
+import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import com.pacheco.app.ecommerce.domain.model.account.User;
 import com.pacheco.app.ecommerce.domain.model.account.UserRole;
 
 public class UserMapper {
 
-    public static User toUser(UserDTO userDTO) {
+    public static User toUser(UserInput userDTO) {
         return User.builder()
                 .name(userDTO.getName())
                 .email(userDTO.getEmail())
@@ -16,7 +16,7 @@ public class UserMapper {
                 .build();
     }
 
-    public static Customer toCustomer(UserDTO userDTO) {
+    public static Customer toCustomer(UserInput userDTO) {
         return Customer.customerBuilder()
                 .email(userDTO.getEmail())
                 .name(userDTO.getName())

@@ -1,6 +1,6 @@
 package com.pacheco.app.ecommerce.api.controller;
 
-import com.pacheco.app.ecommerce.api.dto.ProductDTO;
+import com.pacheco.app.ecommerce.api.model.input.ProductInput;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import com.pacheco.app.ecommerce.domain.service.ProductService;
@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -41,13 +40,13 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product saveProduct(@Valid ProductDTO dto, @RequestParam("photo") Optional<MultipartFile> photo) {
+    public Product saveProduct(@Valid ProductInput dto, @RequestParam("photo") Optional<MultipartFile> photo) {
         return productService.saveProduct(dto, photo.orElse(null));
     }
 
     @PutMapping("/{productId}")
     public Product updateProduct(
-            @PathVariable Long productId, @Valid ProductDTO dto,
+            @PathVariable Long productId, @Valid ProductInput dto,
             @RequestParam("photo") Optional<MultipartFile> photo) {
 
         return productService.update(productId, dto, photo.orElse(null));

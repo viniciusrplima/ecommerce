@@ -1,11 +1,11 @@
-package com.pacheco.app.ecommerce.domain.mapper;
+package com.pacheco.app.ecommerce.api.mapper;
 
-import com.pacheco.app.ecommerce.api.dto.AddressDTO;
+import com.pacheco.app.ecommerce.api.model.input.AddressInput;
 import com.pacheco.app.ecommerce.domain.model.Address;
 
 public class AddressMapper {
 
-    public static Address toAddress(AddressDTO addressDTO) {
+    public static Address toAddress(AddressInput addressDTO) {
         return Address.entityBuilder()
                 .state(addressDTO.getState())
                 .city(addressDTO.getCity())

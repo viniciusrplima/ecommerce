@@ -1,7 +1,7 @@
 package com.pacheco.app.ecommerce.domain.service;
 
-import com.pacheco.app.ecommerce.api.dto.AddressDTO;
-import com.pacheco.app.ecommerce.api.dto.UserDTO;
+import com.pacheco.app.ecommerce.api.model.input.AddressInput;
+import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.domain.exception.BusinessException;
 import com.pacheco.app.ecommerce.domain.exception.UserAddressNotFound;
 import com.pacheco.app.ecommerce.domain.exception.UserAlreadyExists;
@@ -20,8 +20,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.pacheco.app.ecommerce.domain.mapper.AddressMapper.toAddress;
-import static com.pacheco.app.ecommerce.domain.mapper.UserMapper.*;
+import static com.pacheco.app.ecommerce.api.mapper.AddressMapper.toAddress;
+import static com.pacheco.app.ecommerce.api.mapper.UserMapper.*;
 
 @Service
 public class UserService {
@@ -36,13 +36,13 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User registerConsumer(UserDTO customerDTO) {
+    public User registerConsumer(UserInput customerDTO) {
         Customer customer = toCustomer(customerDTO);
         return saveUser(customer);
     }
 
     @Transactional
-    public User register(UserDTO userDTO) {
+    public User register(UserInput userDTO) {
         User user = toUser(userDTO);
         return saveUser(user);
     }
@@ -87,7 +87,7 @@ public class UserService {
     }
 
     @Transactional
-    public Address registerAddress(AddressDTO addressDTO) {
+    public Address registerAddress(AddressInput addressDTO) {
         Customer customer = getCurrentCustomer();
         Address address = toAddress(addressDTO);
 
@@ -99,7 +99,7 @@ public class UserService {
     }
 
     @Transactional
-    public Address updateAddress(Long addressId, AddressDTO addressDTO) {
+    public Address updateAddress(Long addressId, AddressInput addressDTO) {
         Customer customer = getCurrentCustomer();
         Optional<Address> address = customer.getAddresses().stream()
                 .filter(add -> add.getId().equals(addressId))

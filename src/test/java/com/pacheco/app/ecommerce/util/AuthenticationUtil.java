@@ -1,8 +1,7 @@
 package com.pacheco.app.ecommerce.util;
 
-import com.pacheco.app.ecommerce.api.dto.UserDTO;
+import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.domain.model.account.User;
-import com.pacheco.app.ecommerce.domain.model.account.UserRole;
 import com.pacheco.app.ecommerce.domain.security.jwt.JwtTokenUtil;
 import com.pacheco.app.ecommerce.domain.service.UserService;
 import lombok.Getter;
@@ -25,7 +24,7 @@ public class AuthenticationUtil {
     private String token;
 
     public void setUp() {
-        UserDTO userDTO = new UserDTO();
+        UserInput userDTO = new UserInput();
         userDTO.setEmail("admin@admin.com");
         userDTO.setPassword("admin");
         userDTO.setRole("admin");

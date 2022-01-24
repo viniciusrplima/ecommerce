@@ -1,4 +1,4 @@
-package com.pacheco.app.ecommerce.api.dto;
+package com.pacheco.app.ecommerce.api.model.input;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductTypeDTO {
+public class ProductTypeInput {
 
     @NotBlank
     @Length(min = 3, max = 30)

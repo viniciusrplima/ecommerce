@@ -1,8 +1,7 @@
 package com.pacheco.app.ecommerce.domain.security;
 
-import com.pacheco.app.ecommerce.api.dto.UserDTO;
+import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.domain.exception.UserNotFoundException;
-import com.pacheco.app.ecommerce.domain.model.account.UserRole;
 import com.pacheco.app.ecommerce.domain.service.UserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +28,7 @@ public class AdminConfig {
             userService.findByEmail(adminProfile.getUsername());
         }
         catch (UserNotFoundException e) {
-            UserDTO user = new UserDTO();
+            UserInput user = new UserInput();
             user.setEmail(adminProfile.getUsername());
             user.setPassword(adminProfile.getPassword());
             user.setName("admin");

@@ -1,7 +1,7 @@
 package com.pacheco.app.ecommerce.api.controller;
 
-import com.pacheco.app.ecommerce.api.dto.AddressDTO;
-import com.pacheco.app.ecommerce.api.dto.UserDTO;
+import com.pacheco.app.ecommerce.api.model.input.AddressInput;
+import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.core.validation.Groups;
 import com.pacheco.app.ecommerce.domain.model.Address;
 import com.pacheco.app.ecommerce.domain.model.account.User;
@@ -29,7 +29,7 @@ public class UserController {
 
     @PostMapping(Routes.REGISTER)
     @ResponseStatus(HttpStatus.CREATED)
-    public User register(@RequestBody @Validated({Default.class, Groups.ConsumerInfo.class}) UserDTO userDTO) {
+    public User register(@RequestBody @Validated({Default.class, Groups.ConsumerInfo.class}) UserInput userDTO) {
         return userService.registerConsumer(userDTO);
     }
 
@@ -40,12 +40,12 @@ public class UserController {
 
     @PostMapping(Routes.USERS + ADDRESSES)
     @ResponseStatus(HttpStatus.CREATED)
-    public Address registerUserAdress(@RequestBody @Valid AddressDTO addressDTO) {
+    public Address registerUserAdress(@RequestBody @Valid AddressInput addressDTO) {
         return userService.registerAddress(addressDTO);
     }
 
     @PutMapping(Routes.USERS + ADDRESSES + "/{addressId}")
-    public Address updateAddress(@PathVariable Long addressId, @RequestBody @Valid AddressDTO addressDTO) {
+    public Address updateAddress(@PathVariable Long addressId, @RequestBody @Valid AddressInput addressDTO) {
         return userService.updateAddress(addressId, addressDTO);
     }
 

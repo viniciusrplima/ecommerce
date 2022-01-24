@@ -1,6 +1,6 @@
 package com.pacheco.app.ecommerce.domain.service;
 
-import com.pacheco.app.ecommerce.api.dto.ProductDTO;
+import com.pacheco.app.ecommerce.api.model.input.ProductInput;
 import com.pacheco.app.ecommerce.domain.exception.CouldNotOpenImageException;
 import com.pacheco.app.ecommerce.domain.exception.EntityUsedException;
 import com.pacheco.app.ecommerce.domain.exception.ProductNotFoundException;
@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.pacheco.app.ecommerce.domain.mapper.ProductMapper.mergeProduct;
-import static com.pacheco.app.ecommerce.domain.mapper.ProductMapper.toProduct;
+import static com.pacheco.app.ecommerce.api.mapper.ProductMapper.mergeProduct;
+import static com.pacheco.app.ecommerce.api.mapper.ProductMapper.toProduct;
 
 @Service
 public class ProductService {
@@ -30,7 +30,7 @@ public class ProductService {
     private ProductTypeService productTypeService;
 
     @Transactional
-    public Product saveProduct(ProductDTO dto, MultipartFile photo) {
+    public Product saveProduct(ProductInput dto, MultipartFile photo) {
         Product product = null;
 
         try {
@@ -54,7 +54,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Product update(Long id, ProductDTO dto, MultipartFile photo) {
+    public Product update(Long id, ProductInput dto, MultipartFile photo) {
         Product product = findById(id);
 
         try {

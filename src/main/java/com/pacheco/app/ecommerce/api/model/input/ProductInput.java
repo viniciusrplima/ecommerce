@@ -1,13 +1,11 @@
-package com.pacheco.app.ecommerce.api.dto;
+package com.pacheco.app.ecommerce.api.model.input;
 
-import com.pacheco.app.ecommerce.domain.model.ProductType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
-import javax.validation.groups.ConvertGroup;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -15,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProductDTO {
+public class ProductInput {
 
     @NotBlank
     @Length(min = 3, max = 30)

@@ -1,6 +1,6 @@
 package com.pacheco.app.ecommerce.api.controller;
 
-import com.pacheco.app.ecommerce.api.dto.ProductTypeDTO;
+import com.pacheco.app.ecommerce.api.model.input.ProductTypeInput;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
 import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
 import com.pacheco.app.ecommerce.domain.service.ProductTypeService;
@@ -37,13 +37,13 @@ public class ProductTypeController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductType saveProductType(
-            @Valid ProductTypeDTO productType, @RequestParam("icon") Optional<MultipartFile> icon) {
+            @Valid ProductTypeInput productType, @RequestParam("icon") Optional<MultipartFile> icon) {
         return service.save(productType, icon.orElse(null));
     }
 
     @PutMapping("/{productTypeId}")
     public ProductType updateProductType(
-            @PathVariable Long productTypeId, @Valid ProductTypeDTO productType,
+            @PathVariable Long productTypeId, @Valid ProductTypeInput productType,
             @RequestParam("icon") Optional<MultipartFile> icon) {
         return service.update(productTypeId, productType, icon.orElse(null));
     }

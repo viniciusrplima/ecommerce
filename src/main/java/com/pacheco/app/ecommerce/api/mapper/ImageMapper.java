@@ -1,4 +1,4 @@
-package com.pacheco.app.ecommerce.domain.mapper;
+package com.pacheco.app.ecommerce.api.mapper;
 
 import com.pacheco.app.ecommerce.domain.exception.CouldNotOpenImageException;
 import com.pacheco.app.ecommerce.domain.model.Image;
