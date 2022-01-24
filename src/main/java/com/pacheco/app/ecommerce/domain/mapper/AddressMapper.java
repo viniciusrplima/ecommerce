@@ -6,7 +6,7 @@ import com.pacheco.app.ecommerce.domain.model.Address;
 public class AddressMapper {
 
     public static Address toAddress(AddressDTO addressDTO) {
-        return Address.builder()
+        return Address.entityBuilder()
                 .state(addressDTO.getState())
                 .city(addressDTO.getCity())
                 .cep(addressDTO.getCep())

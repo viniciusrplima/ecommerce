@@ -1,9 +1,7 @@
 package com.pacheco.app.ecommerce.domain.model.account;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -12,14 +10,15 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "auth_user")
+@Builder
 public class User {
 
     @Id
     private String email;
 
-    @Column(nullable = false)
+    @JsonIgnore
     private String password;
     private String name;
 

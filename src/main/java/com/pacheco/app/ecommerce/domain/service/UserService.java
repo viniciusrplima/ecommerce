@@ -1,19 +1,16 @@
 package com.pacheco.app.ecommerce.domain.service;
 
-import com.pacheco.app.ecommerce.api.dto.AddressDTO;
 import com.pacheco.app.ecommerce.api.dto.UserDTO;
 import com.pacheco.app.ecommerce.domain.exception.UserNotFoundException;
-import com.pacheco.app.ecommerce.domain.model.Address;
+import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import com.pacheco.app.ecommerce.domain.model.account.User;
-import com.pacheco.app.ecommerce.domain.model.account.UserRole;
 import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static com.pacheco.app.ecommerce.domain.mapper.AddressMapper.toAddress;
-import static com.pacheco.app.ecommerce.domain.mapper.UserMapper.toUser;
+import static com.pacheco.app.ecommerce.domain.mapper.UserMapper.*;
 
 @Service
 public class UserService {
@@ -27,14 +24,16 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User register(UserDTO dto) {
-        return register(dto, UserRole.CUSTOMER);
+    public User registerConsumer(UserDTO customerDTO) {
+        Customer customer = toCustomer(customerDTO);
+        customer.setPassword(passwordEncoder.encode(customerDTO.getPassword()));
+
+        return repository.save(customer);
     }
 
-    public User register(UserDTO dto, UserRole role) {
-        User user = toUser(dto);
+    public User register(UserDTO userDTO) {
+        User user = toUser(userDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(role);
 
         return repository.save(user);
     }

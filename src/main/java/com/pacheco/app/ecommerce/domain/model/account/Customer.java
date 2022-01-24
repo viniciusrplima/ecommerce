@@ -1,14 +1,18 @@
 package com.pacheco.app.ecommerce.domain.model.account;
 
 import com.pacheco.app.ecommerce.domain.model.Address;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
-//@Entity
+@Entity
+@Setter
+@Getter
+@NoArgsConstructor
 public class Customer extends User {
 
     private String cpf;
@@ -22,4 +26,17 @@ public class Customer extends User {
     )
     private List<Address> addresses;
 
+    @Builder(builderMethodName = "customerBuilder")
+    public Customer(String email,
+                    String password,
+                    String name,
+                    UserRole role,
+                    String cpf,
+                    String phone,
+                    List<Address> addresses) {
+        super(email, password, name, role);
+        this.cpf = cpf;
+        this.phone = phone;
+        this.addresses = addresses;
+    }
 }

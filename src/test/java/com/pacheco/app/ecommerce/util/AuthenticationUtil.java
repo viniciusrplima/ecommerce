@@ -28,8 +28,9 @@ public class AuthenticationUtil {
         UserDTO userDTO = new UserDTO();
         userDTO.setEmail("admin@admin.com");
         userDTO.setPassword("admin");
+        userDTO.setRole("admin");
 
-        this.admin = userService.register(userDTO, UserRole.ADMIN);
+        this.admin = userService.register(userDTO);
         this.token = jwtTokenUtil.generateToken(admin.getEmail());
     }
 

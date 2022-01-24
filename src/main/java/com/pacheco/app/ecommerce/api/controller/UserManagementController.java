@@ -3,7 +3,6 @@ package com.pacheco.app.ecommerce.api.controller;
 import com.pacheco.app.ecommerce.api.dto.UserDTO;
 import com.pacheco.app.ecommerce.core.validation.Groups;
 import com.pacheco.app.ecommerce.domain.model.account.User;
-import com.pacheco.app.ecommerce.domain.model.account.UserRole;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import com.pacheco.app.ecommerce.domain.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import javax.validation.groups.Default;
 import java.util.List;
 
 @RestController
-@RequestMapping({Routes.MANAGEMENT, Routes.USERS})
+@RequestMapping(Routes.MANAGEMENT + Routes.USERS)
 public class UserManagementController {
 
     @Autowired
@@ -32,6 +31,6 @@ public class UserManagementController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User registerUser(@RequestBody @Validated({Default.class, Groups.UserRole.class}) UserDTO userDTO) {
-        return userService.register(userDTO, UserRole.valueOf(userDTO.getRole().toUpperCase()));
+        return userService.register(userDTO);
     }
 }

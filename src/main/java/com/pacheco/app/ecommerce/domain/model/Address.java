@@ -5,7 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
 @Entity
 public class Address extends EmbeddableAddress {
@@ -14,7 +14,7 @@ public class Address extends EmbeddableAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Builder
+    @Builder(builderMethodName = "entityBuilder")
     public Address(String state,
                    String city,
                    String cep,

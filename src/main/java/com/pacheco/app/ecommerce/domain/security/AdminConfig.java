@@ -33,8 +33,9 @@ public class AdminConfig {
             user.setEmail(adminProfile.getUsername());
             user.setPassword(adminProfile.getPassword());
             user.setName("admin");
+            user.setRole("admin");
 
-            userService.register(user, UserRole.ADMIN);
+            userService.register(user);
         }
     }
 
