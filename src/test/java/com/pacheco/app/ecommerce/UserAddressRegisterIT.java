@@ -8,11 +8,11 @@ import com.pacheco.app.ecommerce.domain.model.account.UserRole;
 import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import com.pacheco.app.ecommerce.domain.security.jwt.JwtTokenUtil;
-import com.pacheco.app.ecommerce.util.AuthenticationUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ import java.util.List;
 
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
@@ -37,27 +37,29 @@ import static org.junit.Assert.assertTrue;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @TestPropertySource("/application-test.properties")
-public class UserRegisterIT {
+public class UserAddressRegisterIT {
 
     public static final String AUTH_HEADER_PARAM = "Authorization";
-    public static final String USER_JSON_FILE = "/json/user.json";
-    public static final String USER_VALIDATION_ERRORS_JSON_FILE = "/json/user-with-validation-errors.json";
-
-
-    @LocalServerPort
-    private int port;
+    public static final String ADDRESS_JSON_FILE = "/json/address.json";
+    public static final String ADDRESS_VALIDATION_ERRORS_JSON_FILE = "/json/address-with-validation-errors.json";
 
     @Autowired
-    DatabaseCleaner databaseCleaner;
+    AddressRepository addressRepository;
 
     @Autowired
     UserRepository userRepository;
 
     @Autowired
+    DatabaseCleaner databaseCleaner;
+
+    @Autowired
     JwtTokenUtil jwtTokenUtil;
 
-    private String adminToken;
-    private int numUsers;
+    @LocalServerPort
+    private int port;
+
+    private String customerToken;
+    private int numAddresses;
 
     @Before
     public void setUp() {
@@ -66,26 +68,26 @@ public class UserRegisterIT {
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
-        RestAssured.basePath = Routes.MANAGEMENT + Routes.USERS;
+        RestAssured.basePath = Routes.USERS + "/addresses";
     }
 
     @Test
-    public void mustReturnAllUsers_whenGetUsers() {
+    public void mustReturnAllAddresses_whenGetUserAddresses() {
         given()
-            .header(AUTH_HEADER_PARAM, adminToken)
+            .header(AUTH_HEADER_PARAM, customerToken)
             .accept(ContentType.JSON)
         .when()
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numUsers));
+            .body("", hasSize(numAddresses));
     }
 
     @Test
-    public void mustReturnCode201_whenSaveUser() {
+    public void mustReturnStatus201_whenRegisterAddress() {
         given()
-            .header(AUTH_HEADER_PARAM, adminToken)
-            .body(getContentFromResource(USER_JSON_FILE))
+            .header(AUTH_HEADER_PARAM, customerToken)
+            .body(getContentFromResource(ADDRESS_JSON_FILE))
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
         .when()
@@ -95,10 +97,10 @@ public class UserRegisterIT {
     }
 
     @Test
-    public void mustReturnValidationErrors_whenSaveUserWithValidationErrors() {
+    public void mustReturnValidationErrors_whenRegisterAddressWithErrors() {
         ValidatableResponse response = given()
-            .header(AUTH_HEADER_PARAM, adminToken)
-            .body(getContentFromResource(USER_VALIDATION_ERRORS_JSON_FILE))
+            .header(AUTH_HEADER_PARAM, customerToken)
+            .body(getContentFromResource(ADDRESS_VALIDATION_ERRORS_JSON_FILE))
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
         .when()
@@ -106,27 +108,38 @@ public class UserRegisterIT {
         .then()
             .statusCode(HttpStatus.BAD_REQUEST.value());
 
-        List<String> userResponses = response.extract().jsonPath().getList("objects.userMessage");
-        List<String> propertyNames = response.extract().jsonPath().getList("objects.name");
+        List<String> objectNames = response.extract().jsonPath().getList("objects.name");
 
-        assertTrue(userResponses.stream().anyMatch(containsString("valid")::matches));
-        assertTrue(userResponses.stream().anyMatch(containsString("blank")::matches));
-        assertTrue(propertyNames.containsAll(List.of("email", "password", "role")));
+        assertTrue(objectNames.containsAll(List.of("state", "city", "cep", "street", "number", "district")));
     }
 
-
     private void prepareData() {
-        List<User> userList = new ArrayList<>();
+        List<Address> addressList = new ArrayList<>();
 
-        User admin = User.builder()
-                .name("admin")
-                .email("admin@admin.com")
-                .password("123456")
-                .role(UserRole.ADMIN)
+        Address address1 = Address.entityBuilder()
+                .state("PB")
+                .city("Campina Grande")
+                .cep("58699-222")
+                .district("Dinamerica")
+                .street("Floriano Peixoto")
+                .number("54G")
+                .complement("APT O203")
                 .build();
+        addressList.add(address1);
 
-        userList.add(admin);
-        adminToken = "Bearer " + jwtTokenUtil.generateToken(admin.getEmail());
+        Address address2 = Address.entityBuilder()
+                .state("PB")
+                .city("Campina Grande")
+                .cep("58699-222")
+                .district("Dinamerica")
+                .street("Floriano Peixoto")
+                .number("54G")
+                .complement("APT O203")
+                .build();
+        addressList.add(address2);
+
+        addressRepository.saveAll(addressList);
+        numAddresses = addressList.size();
 
         User customer = Customer.customerBuilder()
                 .name("vinicius")
@@ -135,11 +148,11 @@ public class UserRegisterIT {
                 .role(UserRole.CUSTOMER)
                 .cpf("12345678988")
                 .phone("(89) 8888-6933")
+                .addresses(addressList)
                 .build();
 
-        userList.add(customer);
-
-        userRepository.saveAll(userList);
-        numUsers = userList.size();
+        userRepository.save(customer);
+        customerToken = "Bearer " + jwtTokenUtil.generateToken(customer.getEmail());
     }
+
 }
