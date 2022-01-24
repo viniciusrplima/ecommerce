@@ -51,7 +51,7 @@ public class UserRegisterIT {
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
-        RestAssured.basePath = Routes.USERS;
+        RestAssured.basePath = Routes.MANAGEMENT + Routes.USERS;
     }
 
     @Test

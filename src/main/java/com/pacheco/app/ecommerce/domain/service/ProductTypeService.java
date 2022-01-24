@@ -38,7 +38,6 @@ public class ProductTypeService {
         return repository.save(productType);
     }
 
-    @Transactional
     public void delete(Long id) {
         try {
             repository.deleteById(id);
