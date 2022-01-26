@@ -6,10 +6,13 @@ import com.fasterxml.jackson.databind.exc.PropertyBindingException;
 import com.pacheco.app.ecommerce.domain.exception.BusinessException;
 import com.pacheco.app.ecommerce.domain.exception.EntityUsedException;
 import com.pacheco.app.ecommerce.domain.exception.NotFoundEntityException;
+import com.pacheco.app.ecommerce.infrastructure.email.EmailFactory;
+import com.pacheco.app.ecommerce.infrastructure.email.EmailService;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +29,6 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.xml.bind.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,6 +62,15 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private EmailFactory emailFactory;
+
+    @Autowired
+    private Environment environment;
+
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(
             NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -81,9 +92,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
-
-
-
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
@@ -241,6 +249,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         Problem problem = createProblemBuilder(status, type, detail).build();
 
         e.printStackTrace();
+        sendEmailIfInProduction(e);
 
         return handleExceptionInternal(e, problem, new HttpHeaders(), status, request);
     }
@@ -264,6 +273,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return super.handleExceptionInternal(ex, body, headers, status, request);
+    }
+
+    private void sendEmailIfInProduction(Exception e) {
+        if (List.of(environment.getActiveProfiles()).contains("prod")) {
+            emailService.sendEmail(emailFactory.createInternalErrorEmail(e));
+        }
     }
 
     public Problem.ProblemBuilder createProblemBuilder(HttpStatus status, ProblemType type, String detail) {

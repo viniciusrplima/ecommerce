@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+  <h1>Internal Server Error</h1>
+  <table>
+    <tr>
+      <td>message:</td>
+      <td th:text="${message}"></td>
+    </tr>
+    <tr>
+      <td>timestamp: </td>
+      <td th:text="${timestamp}"></td>
+    </tr>
+  </table>
+
+  <h3>Cause</h3>
+
+  <p><b><span th:text="${cause}" style="color:red"></span></b></p>
+
+  <h3>Resumed Trace</h3>
+
+  <div th:each="traceItem: ${resumedTrace}">
+    <p th:text="${traceItem}"></p>
+  </div>
+
+  <h3>Complete Trace</h3>
+
+  <div th:each="traceItem: ${trace}">
+    <p th:text="${traceItem}"></p>
+  </div>
+</body>
+</html>
