@@ -3,6 +3,7 @@ package com.pacheco.app.ecommerce.domain.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ public class Product {
     private Boolean active;
 
     @Embedded
+    @Lazy
     private Image photo;
 
     @ManyToMany

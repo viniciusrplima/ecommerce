@@ -1,5 +1,6 @@
 package com.pacheco.app.ecommerce.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class Cart {
     private Long id;
 
     @OneToOne
+    @JsonIgnore
     private Customer customer;
 
     @OneToMany(mappedBy = "cart")

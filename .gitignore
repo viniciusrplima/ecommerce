@@ -1,3 +1,14 @@
+# DEVELOPMENT UTILS
+
+src/main/java/com/pacheco/app/ecommerce/util/DummyData.java
+src/main/resources/ddl.sql
+src/main/resources/format.sql
+
+
+
+
+#---------------
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -32,6 +43,3 @@ build/
 ### VS Code ###
 .vscode/
 
-###
-src/main/resources/ddl.sql
-src/main/resources/format.sql

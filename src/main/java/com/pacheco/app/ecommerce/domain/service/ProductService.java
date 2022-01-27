@@ -3,6 +3,7 @@ package com.pacheco.app.ecommerce.domain.service;
 import com.pacheco.app.ecommerce.api.model.input.ProductInput;
 import com.pacheco.app.ecommerce.domain.exception.CouldNotOpenImageException;
 import com.pacheco.app.ecommerce.domain.exception.EntityUsedException;
+import com.pacheco.app.ecommerce.domain.exception.OutOfStockException;
 import com.pacheco.app.ecommerce.domain.exception.ProductNotFoundException;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,5 +76,17 @@ public class ProductService {
         catch (DataIntegrityViolationException e) {
             throw new EntityUsedException(id);
         }
+    }
+
+    @Transactional
+    public Product getProductFromStock(Long productId) {
+        Product product = findById(productId);
+
+        if (product.getStock().equals(BigInteger.ZERO)) {
+            throw new OutOfStockException(product.getName());
+        }
+
+        product.setStock(product.getStock().subtract(BigInteger.ONE));
+        return repository.save(product);
     }
 }

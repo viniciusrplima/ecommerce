@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
 import java.util.List;
@@ -30,6 +31,7 @@ public class Customer extends User {
 
     @OneToOne(mappedBy = "customer")
     @JsonIgnore
+    @Lazy
     private Cart cart;
 
     @Builder(builderMethodName = "customerBuilder")

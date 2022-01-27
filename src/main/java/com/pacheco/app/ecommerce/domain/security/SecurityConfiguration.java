@@ -50,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeRequests()
             .antMatchers(Routes.REGISTER).permitAll()
-            .antMatchers(generalizeRoutes(Routes.USERS)).authenticated()
+            .antMatchers(generalizeRoutes(Routes.USERS, Routes.CART)).authenticated()
             .antMatchers(HttpMethod.GET, generalizeRoutes(Routes.MANAGEMENT)).hasAnyAuthority(UserPermission.USER_READ.getPermission())
             .antMatchers(HttpMethod.POST, generalizeRoutes(Routes.MANAGEMENT)).hasAnyAuthority(UserPermission.USER_WRITE.getPermission())
             .antMatchers(HttpMethod.PUT, generalizeRoutes(Routes.MANAGEMENT)).hasAnyAuthority(UserPermission.USER_WRITE.getPermission())
