@@ -3,5 +3,10 @@
     "description": "diâmetro: 30cm, cor: laranja",
     "price": 85.0,
     "stock": 50,
-    "types": [1]
+    "active": true,
+    "types": [
+        {
+            "id": 1
+        }
+    ]
 }

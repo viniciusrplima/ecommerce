@@ -1,28 +1,38 @@
 package com.pacheco.app.ecommerce.api.mapper;
 
 import com.pacheco.app.ecommerce.api.model.input.ProductTypeInput;
+import com.pacheco.app.ecommerce.api.model.output.ProductModel;
+import com.pacheco.app.ecommerce.api.model.output.ProductTypeModel;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
-import org.springframework.web.multipart.MultipartFile;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import static com.pacheco.app.ecommerce.api.mapper.ImageMapper.toImage;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class ProductTypeMapper {
 
-    public static ProductType toProductType(ProductTypeInput dto, MultipartFile icon) {
-        return mergeProductType(new ProductType(), dto, icon);
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public ProductType toModel(ProductTypeInput productTypeInput) {
+        return modelMapper.map(productTypeInput, ProductType.class);
     }
 
-    public static ProductType mergeProductType(
-            ProductType productType, ProductTypeInput dto, MultipartFile icon) {
+    public ProductTypeModel toRepresentation(ProductType productType) {
+        return modelMapper.map(productType, ProductTypeModel.class);
+    }
 
-        productType.setName(dto.getName());
-        productType.setDescription(dto.getDescription());
+    public List<ProductTypeModel> toRepresentationList(List<ProductType> productTypeList) {
+        return productTypeList.stream()
+                .map(this::toRepresentation)
+                .collect(Collectors.toList());
+    }
 
-        if (icon != null) {
-            productType.setIcon(toImage(icon));
-        }
-
-        return productType;
+    public void mergeProductType(ProductTypeInput productTypeInput, ProductType productType) {
+        modelMapper.map(productTypeInput, productType);
     }
 
 }

@@ -1,17 +1,17 @@
 package com.pacheco.app.ecommerce.api.controller;
 
+import com.pacheco.app.ecommerce.api.mapper.ProductMapper;
 import com.pacheco.app.ecommerce.api.model.input.ProductInput;
+import com.pacheco.app.ecommerce.api.model.output.ProductModel;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import com.pacheco.app.ecommerce.domain.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -25,31 +25,35 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductMapper productMapper;
+
     @GetMapping
-    public List<Product> getProducts(@RequestParam(value = "q", required = false) String query,
-                                     @RequestParam(value = "limit", required = false) Long limit,
-                                     @RequestParam(value = "page", required = false) Long page,
-                                     @RequestParam(value = "type", required = false) Long type) {
-        return repository.findWithAttrbutes(query, type, limit, page);
+    public List<ProductModel> getProducts(@RequestParam(value = "q", required = false) String query,
+                                          @RequestParam(value = "limit", required = false) Long limit,
+                                          @RequestParam(value = "page", required = false) Long page,
+                                          @RequestParam(value = "type", required = false) Long type) {
+        return productMapper.toRepresentationList(
+                repository.findWithAttrbutes(query, type, limit, page));
     }
 
     @GetMapping("/{productId}")
-    public Product getProduct(@PathVariable Long productId) {
-        return productService.findById(productId);
+    public ProductModel getProduct(@PathVariable Long productId) {
+        return productMapper.toRepresentation(productService.findById(productId));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product saveProduct(@Valid ProductInput dto, @RequestParam("photo") Optional<MultipartFile> photo) {
-        return productService.saveProduct(dto, photo.orElse(null));
+    public ProductModel saveProduct(@RequestBody @Valid ProductInput productInput) {
+        return productMapper.toRepresentation(
+                productService.saveProduct(productMapper.toModel(productInput)));
     }
 
     @PutMapping("/{productId}")
-    public Product updateProduct(
-            @PathVariable Long productId, @Valid ProductInput dto,
-            @RequestParam("photo") Optional<MultipartFile> photo) {
-
-        return productService.update(productId, dto, photo.orElse(null));
+    public ProductModel updateProduct(@PathVariable Long productId, @RequestBody @Valid ProductInput productInput) {
+        Product product = productService.findById(productId);
+        productMapper.mergeProduct(productInput, product);
+        return productMapper.toRepresentation(productService.saveProduct(product));
     }
 
     @DeleteMapping("/{productId}")

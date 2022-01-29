@@ -26,8 +26,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromJsonAsMap;
-import static com.pacheco.app.ecommerce.util.RestAssuredUtil.givenMultipartForm;
+import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertTrue;
@@ -86,10 +85,11 @@ public class ProductRegisterIT {
 
     @Test
     public void mustReturnStatus201AndProductMustBeActive_whenRegisterProduct() throws JsonProcessingException {
-        givenMultipartForm(getContentFromJsonAsMap(PRODUCT_JSON_FILENAME))
+        given()
+            .body(getContentFromResource(PRODUCT_JSON_FILENAME))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
-            .contentType(ContentType.MULTIPART)
+            .contentType(ContentType.JSON)
         .when()
             .post()
         .then()
@@ -129,10 +129,11 @@ public class ProductRegisterIT {
 
     @Test
     public void mustReturnValidationErrors_whenSaveProductWithValidationErrors() throws JsonProcessingException {
-        ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
+        ValidatableResponse response = given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
-            .contentType(ContentType.MULTIPART)
+            .contentType(ContentType.JSON)
+            .body(getContentFromResource(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
         .when()
             .post()
         .then()
@@ -150,11 +151,12 @@ public class ProductRegisterIT {
     public void mustReturnProduct_whenUpdateProduct() throws JsonProcessingException {
         int productId = samsungProd.getId().intValue();
 
-        givenMultipartForm(getContentFromJsonAsMap(PRODUCT_JSON_FILENAME))
+        given()
+            .body(getContentFromResource(PRODUCT_JSON_FILENAME))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productId", productId)
             .accept(ContentType.JSON)
-            .contentType(ContentType.MULTIPART)
+            .contentType(ContentType.JSON)
         .when()
             .put("/{productId}")
         .then()
@@ -166,11 +168,12 @@ public class ProductRegisterIT {
     public void mustReturnValidationErrors_whenUpdateProductWithValidationErrors() throws JsonProcessingException {
         int productId = samsungProd.getId().intValue();
 
-        ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
+        ValidatableResponse response = given()
+            .body(getContentFromResource(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productId", productId)
             .accept(ContentType.JSON)
-            .contentType(ContentType.MULTIPART)
+            .contentType(ContentType.JSON)
         .when()
             .put("/{productId}")
         .then()

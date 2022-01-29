@@ -29,9 +29,11 @@ public class ProductInput {
 
     @PositiveOrZero
     private BigInteger stock;
+
+    @NotNull
     private Boolean active;
 
     @NotEmpty
-    private List<Long> types;
+    private List<ProductTypeRef> types;
 
 }

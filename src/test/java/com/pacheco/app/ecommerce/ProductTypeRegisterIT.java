@@ -26,8 +26,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromJsonAsMap;
-import static com.pacheco.app.ecommerce.util.RestAssuredUtil.givenMultipartForm;
+import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertTrue;
@@ -114,10 +113,11 @@ public class ProductTypeRegisterIT {
 
     @Test
     public void mustReturnStatus201_whenSaveProductType() throws JsonProcessingException {
-        givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_FILE))
+        given()
+            .body(getContentFromResource(PRODUCT_TYPE_FILE))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
-            .contentType(ContentType.MULTIPART)
+            .contentType(ContentType.JSON)
         .when()
             .post()
         .then()
@@ -126,10 +126,11 @@ public class ProductTypeRegisterIT {
 
     @Test
     public void mustReturnValidationErrors_whenSaveAProductTypeWithParameterErrors() throws JsonProcessingException {
-        ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
+        ValidatableResponse response = given()
+                .body(getContentFromResource(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
-            .contentType(ContentType.MULTIPART)
+            .contentType(ContentType.JSON)
         .when()
             .post()
         .then()
@@ -144,11 +145,12 @@ public class ProductTypeRegisterIT {
 
     @Test
     public void mustReturnStatus200andSameId_whenUpdateProductType() throws JsonProcessingException {
-        givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_FILE))
+        given()
+            .body(getContentFromResource(PRODUCT_TYPE_FILE))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productTypeId", comidaProdType.getId())
             .accept(ContentType.JSON)
-            .contentType(ContentType.MULTIPART)
+            .contentType(ContentType.JSON)
         .when()
             .put("/{productTypeId}")
         .then()
@@ -158,11 +160,12 @@ public class ProductTypeRegisterIT {
 
     @Test
     public void mustReturnValidationErrors_whenUpdateAProductTypeWithParameterErrors() throws JsonProcessingException {
-        ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
+        ValidatableResponse response = given()
+            .body(getContentFromResource(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productTypeId", comidaProdType.getId())
             .accept(ContentType.JSON)
-            .contentType(ContentType.MULTIPART)
+            .contentType(ContentType.JSON)
         .when()
             .put("/{productTypeId}")
         .then()
