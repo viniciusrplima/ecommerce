@@ -87,7 +87,7 @@ public class ProductRegisterIT {
     @Test
     public void mustReturnStatus201AndProductMustBeActive_whenRegisterProduct() throws JsonProcessingException {
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_JSON_FILENAME))
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
         .when()
@@ -130,7 +130,7 @@ public class ProductRegisterIT {
     @Test
     public void mustReturnValidationErrors_whenSaveProductWithValidationErrors() throws JsonProcessingException {
         ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
         .when()
@@ -151,7 +151,7 @@ public class ProductRegisterIT {
         int productId = samsungProd.getId().intValue();
 
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_JSON_FILENAME))
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productId", productId)
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -167,7 +167,7 @@ public class ProductRegisterIT {
         int productId = samsungProd.getId().intValue();
 
         ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productId", productId)
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -187,7 +187,7 @@ public class ProductRegisterIT {
     @Test
     public void mustReturnStatus204_whenDeleteProduct() {
         given()
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productId", samsungProd.getId())
             .accept(ContentType.JSON)
         .when()

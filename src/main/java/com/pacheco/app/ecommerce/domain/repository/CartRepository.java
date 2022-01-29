@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
@@ -16,5 +17,5 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
             "JOIN FETCH c.items ci " +
             "JOIN FETCH ci.product " +
             "WHERE c.customer.email = :email")
-    Cart findCartFromUser(String email);
+    Optional<Cart> findCartFromUser(String email);
 }

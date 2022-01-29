@@ -1,10 +1,7 @@
 package com.pacheco.app.ecommerce.domain.service;
 
 import com.pacheco.app.ecommerce.api.model.input.ProductInput;
-import com.pacheco.app.ecommerce.domain.exception.CouldNotOpenImageException;
-import com.pacheco.app.ecommerce.domain.exception.EntityUsedException;
-import com.pacheco.app.ecommerce.domain.exception.OutOfStockException;
-import com.pacheco.app.ecommerce.domain.exception.ProductNotFoundException;
+import com.pacheco.app.ecommerce.domain.exception.*;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
@@ -79,14 +76,25 @@ public class ProductService {
     }
 
     @Transactional
-    public Product getProductFromStock(Long productId) {
+    public Product getProductFromStock(Long productId, BigInteger quantity) {
         Product product = findById(productId);
 
         if (product.getStock().equals(BigInteger.ZERO)) {
             throw new OutOfStockException(product.getName());
         }
 
-        product.setStock(product.getStock().subtract(BigInteger.ONE));
+        if (product.getStock().subtract(quantity).compareTo(BigInteger.ZERO) < 0) {
+            throw new ProductNotEnoughException(product.getName(), product.getStock());
+        }
+
+        product.setStock(product.getStock().subtract(quantity));
+        return repository.save(product);
+    }
+
+    @Transactional
+    public Product replaceProductInStock(Long productId, BigInteger quantity) {
+        Product product = findById(productId);
+        product.setStock(product.getStock().add(quantity));
         return repository.save(product);
     }
 }

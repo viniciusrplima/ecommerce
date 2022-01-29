@@ -8,6 +8,7 @@ import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import com.pacheco.app.ecommerce.domain.repository.CartItemRepository;
 import com.pacheco.app.ecommerce.domain.repository.CartRepository;
+import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class CartService {
     @Transactional
     public Cart addProductToCart(Long productId) {
         Customer customer = userService.getCurrentCustomer();
-        Product product = productService.getProductFromStock(productId);
+        Product product = productService.getProductFromStock(productId, BigInteger.ONE);
         Cart cart = customer.getCart();
 
         if (cart == null) {
@@ -50,6 +51,7 @@ public class CartService {
     @Transactional
     public Cart removeProductFromCart(Long productId) {
         Customer customer = userService.getCurrentCustomer();
+        Product product = productService.findById(productId);
         Cart cart = customer.getCart();
 
         if (cart == null || cart.getItems().isEmpty()) {
@@ -64,8 +66,44 @@ public class CartService {
             throw new BusinessException(String.format("Product with id %d is not in cart", productId));
         }
 
+        // Remove items from cart and replace them in stock
         cartItemRepository.deleteAll(cartItemsToRemove);
         cart.getItems().removeAll(cartItemsToRemove);
+        BigInteger removedCount = BigInteger.ZERO;
+
+        for (CartItem ci : cartItemsToRemove) {
+            removedCount = removedCount.add(ci.getQuantity());
+        }
+
+        productService.replaceProductInStock(productId, removedCount);
+
+        return cartRepository.save(cart);
+    }
+
+    public Cart updateCartItem(Long productId, CartItem cartItem) {
+        Customer customer = userService.getCurrentCustomer();
+        Product product = productService.findById(productId);
+        Cart cart = customer.getCart();
+
+        if (cart == null || cart.getItems().isEmpty()) {
+            throw new CartIsEmptyException();
+        }
+
+        CartItem oldCartItem = cart.getItems().stream()
+                .filter(ci -> ci.getProduct().getId().equals(product.getId()))
+                .findFirst().orElse(createCartItem(product, cart));
+
+        BigInteger quantityDiff = cartItem.getQuantity().subtract(oldCartItem.getQuantity());
+
+        if (quantityDiff.compareTo(BigInteger.ZERO) < 0) {
+            productService.replaceProductInStock(productId, quantityDiff.multiply(BigInteger.valueOf(-1)));
+        }
+        else if (quantityDiff.compareTo(BigInteger.ZERO) > 0) {
+            productService.getProductFromStock(productId, quantityDiff);
+        }
+
+        oldCartItem.setQuantity(cartItem.getQuantity());
+        cartItemRepository.save(oldCartItem);
 
         return cartRepository.save(cart);
     }
@@ -81,6 +119,7 @@ public class CartService {
         CartItem cartItem = new CartItem();
         cartItem.setCart(cart);
         cartItem.setProduct(product);
+        cartItem.setQuantity(BigInteger.ZERO);
         return cartItem;
     }
 
@@ -90,7 +129,6 @@ public class CartService {
                 .findFirst().orElse(createCartItem(product, cart));
 
         cartItem.setQuantity(cartItem.getQuantity().add(BigInteger.ONE));
-        cartItem = cartItemRepository.save(cartItem);
-        cart.getItems().add(cartItem);
+        cartItemRepository.save(cartItem);
     }
 }

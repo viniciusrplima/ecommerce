@@ -30,4 +30,9 @@ public class CartItem {
     @Lazy
     private Cart cart;
 
+    public CartItem(BigInteger quantity, Product product, Cart cart) {
+        this.quantity = quantity;
+        this.product = product;
+        this.cart = cart;
+    }
 }

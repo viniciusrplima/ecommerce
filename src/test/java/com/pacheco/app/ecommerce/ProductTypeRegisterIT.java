@@ -115,7 +115,7 @@ public class ProductTypeRegisterIT {
     @Test
     public void mustReturnStatus201_whenSaveProductType() throws JsonProcessingException {
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_FILE))
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
         .when()
@@ -127,7 +127,7 @@ public class ProductTypeRegisterIT {
     @Test
     public void mustReturnValidationErrors_whenSaveAProductTypeWithParameterErrors() throws JsonProcessingException {
         ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
         .when()
@@ -145,7 +145,7 @@ public class ProductTypeRegisterIT {
     @Test
     public void mustReturnStatus200andSameId_whenUpdateProductType() throws JsonProcessingException {
         givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_FILE))
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productTypeId", comidaProdType.getId())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -159,7 +159,7 @@ public class ProductTypeRegisterIT {
     @Test
     public void mustReturnValidationErrors_whenUpdateAProductTypeWithParameterErrors() throws JsonProcessingException {
         ValidatableResponse response = givenMultipartForm(getContentFromJsonAsMap(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .pathParam("productTypeId", comidaProdType.getId())
             .accept(ContentType.JSON)
             .contentType(ContentType.MULTIPART)
@@ -180,7 +180,7 @@ public class ProductTypeRegisterIT {
         long productTypeId = comidaProdType.getId();
 
         given()
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
             .pathParam("productTypeId", productTypeId)
         .when()
@@ -194,7 +194,7 @@ public class ProductTypeRegisterIT {
         long productTypeId = withDependentProdType.getId();
 
         given()
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getBearerToken())
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
             .pathParam("productTypeId", productTypeId)
         .when()

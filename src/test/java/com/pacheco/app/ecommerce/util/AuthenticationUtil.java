@@ -1,12 +1,17 @@
 package com.pacheco.app.ecommerce.util;
 
 import com.pacheco.app.ecommerce.api.model.input.UserInput;
+import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import com.pacheco.app.ecommerce.domain.model.account.User;
 import com.pacheco.app.ecommerce.domain.security.jwt.JwtTokenUtil;
 import com.pacheco.app.ecommerce.domain.service.UserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,7 +26,7 @@ public class AuthenticationUtil {
     private JwtTokenUtil jwtTokenUtil;
 
     private User admin;
-    private String token;
+    private Customer customer;
 
     public void setUp() {
         UserInput userDTO = new UserInput();
@@ -29,11 +34,36 @@ public class AuthenticationUtil {
         userDTO.setPassword("admin");
         userDTO.setRole("admin");
 
+        UserInput customerDTO = new UserInput();
+        customerDTO.setEmail("customer@customer.com");
+        customerDTO.setPassword("customer");
+        customerDTO.setRole("customer");
+        customerDTO.setCpf("1235636998");
+        customerDTO.setPhone("25555666");
+
         this.admin = userService.register(userDTO);
-        this.token = jwtTokenUtil.generateToken(admin.getEmail());
+        this.customer = (Customer) userService.registerConsumer(customerDTO);
     }
 
-    public String getBearerToken() {
-        return "Bearer " + token;
+    public void setContextUser(User user) {
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .roles(user.getRole().name())
+                .authorities(user.getRole().getPermissions())
+                .build();
+
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+    }
+
+    public String getAdminToken() {
+        return "Bearer " + jwtTokenUtil.generateToken(admin.getEmail());
+    }
+
+    public String getCustomerToken() {
+        return "Bearer " + jwtTokenUtil.generateToken(customer.getEmail());
     }
 }
