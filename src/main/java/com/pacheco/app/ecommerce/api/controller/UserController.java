@@ -1,11 +1,14 @@
 package com.pacheco.app.ecommerce.api.controller;
 
 import com.pacheco.app.ecommerce.api.mapper.AddressMapper;
+import com.pacheco.app.ecommerce.api.mapper.UserMapper;
 import com.pacheco.app.ecommerce.api.model.input.AddressInput;
 import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.api.model.output.AddressModel;
+import com.pacheco.app.ecommerce.api.model.output.CustomerModel;
 import com.pacheco.app.ecommerce.core.validation.Groups;
 import com.pacheco.app.ecommerce.domain.model.Address;
+import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import com.pacheco.app.ecommerce.domain.model.account.User;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import com.pacheco.app.ecommerce.domain.service.UserService;
@@ -32,10 +35,14 @@ public class UserController {
     @Autowired
     private AddressMapper addressMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @PostMapping(Routes.REGISTER)
     @ResponseStatus(HttpStatus.CREATED)
-    public User register(@RequestBody @Validated({Default.class, Groups.ConsumerInfo.class}) UserInput userDTO) {
-        return userService.registerConsumer(userDTO);
+    public CustomerModel register(@RequestBody @Validated({Default.class, Groups.ConsumerInfo.class}) UserInput userDTO) {
+        return userMapper.toCustomerRepresentation(
+                userService.registerConsumer(userMapper.toCustomerModel(userDTO)));
     }
 
     @GetMapping(Routes.USERS + ADDRESSES)

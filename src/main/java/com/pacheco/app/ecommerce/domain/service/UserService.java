@@ -1,6 +1,5 @@
 package com.pacheco.app.ecommerce.domain.service;
 
-import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.domain.exception.BusinessException;
 import com.pacheco.app.ecommerce.domain.exception.UserAddressNotFound;
 import com.pacheco.app.ecommerce.domain.exception.UserAlreadyExists;
@@ -19,8 +18,6 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.pacheco.app.ecommerce.api.mapper.UserMapper.*;
-
 @Service
 public class UserService {
 
@@ -34,14 +31,12 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User registerConsumer(UserInput customerDTO) {
-        Customer customer = toCustomer(customerDTO);
-        return saveUser(customer);
+    public Customer registerConsumer(Customer customer) {
+        return (Customer) saveUser(customer);
     }
 
     @Transactional
-    public User register(UserInput userDTO) {
-        User user = toUser(userDTO);
+    public User register(User user) {
         return saveUser(user);
     }
 

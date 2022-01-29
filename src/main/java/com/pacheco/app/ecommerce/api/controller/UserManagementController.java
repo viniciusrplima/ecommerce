@@ -1,8 +1,9 @@
 package com.pacheco.app.ecommerce.api.controller;
 
+import com.pacheco.app.ecommerce.api.mapper.UserMapper;
 import com.pacheco.app.ecommerce.api.model.input.UserInput;
+import com.pacheco.app.ecommerce.api.model.output.UserModel;
 import com.pacheco.app.ecommerce.core.validation.Groups;
-import com.pacheco.app.ecommerce.domain.model.account.User;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import com.pacheco.app.ecommerce.domain.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,18 @@ public class UserManagementController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @GetMapping
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public List<UserModel> getUsers() {
+        return userMapper.toUserRepresentationList(userRepository.findAll());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User registerUser(@RequestBody @Validated({Default.class, Groups.UserRole.class}) UserInput userDTO) {
-        return userService.register(userDTO);
+    public UserModel registerUser(@RequestBody @Validated({Default.class, Groups.UserRole.class}) UserInput userDTO) {
+        return userMapper.toUserRepresentation(
+                userService.register(userMapper.toUserModel(userDTO)));
     }
 }
