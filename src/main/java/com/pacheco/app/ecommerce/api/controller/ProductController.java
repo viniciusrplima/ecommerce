@@ -6,11 +6,16 @@ import com.pacheco.app.ecommerce.api.model.output.ProductModel;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import com.pacheco.app.ecommerce.domain.service.ProductService;
+import com.pacheco.app.ecommerce.infrastructure.awsS3.AwsS3ImageBucket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 
@@ -61,4 +66,12 @@ public class ProductController {
     public void deleteProduct(@PathVariable Long productId) {
         productService.delete(productId);
     }
+
+    @PutMapping("/{productId}/image")
+    public ProductModel updateProductImage(@PathVariable Long productId,
+                                           @RequestParam("image") MultipartFile image) throws IOException {
+        return productMapper.toRepresentation(
+                productService.updateImage(productId, image.getInputStream(), image.getContentType()));
+    }
+
 }

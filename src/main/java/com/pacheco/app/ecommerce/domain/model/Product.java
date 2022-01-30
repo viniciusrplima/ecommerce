@@ -25,9 +25,8 @@ public class Product {
     private BigInteger stock;
     private Boolean active;
 
-    @Embedded
-    @Lazy
-    private Image photo;
+    @OneToOne
+    private Image image;
 
     @ManyToMany
     @JoinTable(

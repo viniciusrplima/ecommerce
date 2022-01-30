@@ -20,7 +20,4 @@ public class ProductType {
     private String name;
     private String description;
 
-    @Embedded
-    private Image icon;
-
 }
