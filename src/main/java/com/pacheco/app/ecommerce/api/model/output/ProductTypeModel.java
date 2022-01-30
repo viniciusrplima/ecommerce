@@ -13,6 +13,6 @@ public class ProductTypeModel {
     private Long id;
     private String name;
     private String description;
-    private Image icon;
+    private String publicImageUrl;
 
 }

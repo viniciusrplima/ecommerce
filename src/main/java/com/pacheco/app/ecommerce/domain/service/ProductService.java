@@ -66,6 +66,7 @@ public class ProductService {
         return repository.save(product);
     }
 
+    @Transactional
     public Product updateImage(Long productid, InputStream inputStream, String contentType) {
         Product product = findById(productid);
 

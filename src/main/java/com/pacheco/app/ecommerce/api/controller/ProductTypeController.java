@@ -2,6 +2,7 @@ package com.pacheco.app.ecommerce.api.controller;
 
 import com.pacheco.app.ecommerce.api.mapper.ProductTypeMapper;
 import com.pacheco.app.ecommerce.api.model.input.ProductTypeInput;
+import com.pacheco.app.ecommerce.api.model.output.ProductModel;
 import com.pacheco.app.ecommerce.api.model.output.ProductTypeModel;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
 import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
@@ -9,8 +10,10 @@ import com.pacheco.app.ecommerce.domain.service.ProductTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -56,6 +59,13 @@ public class ProductTypeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProductType(@PathVariable Long productTypeId) {
         service.delete(productTypeId);
+    }
+
+    @PutMapping("/{productTypeId}/image")
+    public ProductTypeModel updateProductTypeImage(@PathVariable Long productTypeId,
+                                                   @RequestParam("image") MultipartFile image) throws IOException {
+        return productTypeMapper.toRepresentation(
+                service.updateImage(productTypeId, image.getInputStream(), image.getContentType()));
     }
 
 }

@@ -20,4 +20,8 @@ public class ProductType {
     private String name;
     private String description;
 
+    @OneToOne
+    @JoinColumn(name = "image_key")
+    private Image image;
+
 }
