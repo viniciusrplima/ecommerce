@@ -19,6 +19,7 @@ public class ProductModel {
     private BigDecimal price;
     private BigInteger stock;
     private Boolean active;
+    private String publicImageUrl;
     private List<ProductTypeModel> types;
 
 }

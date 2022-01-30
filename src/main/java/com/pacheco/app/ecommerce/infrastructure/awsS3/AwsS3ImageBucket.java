@@ -6,6 +6,9 @@ import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Permission;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,7 +26,7 @@ public class AwsS3ImageBucket {
     @Autowired
     private AmazonS3 s3;
 
-    public String saveImage(InputStream file, String contentType) throws AmazonServiceException {
+    public BucketImageObject saveImage(InputStream file, String contentType) throws AmazonServiceException {
         String hashName = RandomStringUtils.randomAlphanumeric(HASH_SIZE);
 
         ObjectMetadata metadata = new ObjectMetadata();
@@ -35,11 +38,27 @@ public class AwsS3ImageBucket {
         acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
         s3.setObjectAcl(awsS3Properties.getImageBucketName(), hashName, acl);
 
-        return String.format("https://%s.s3.sa-east-1.amazonaws.com/%s", awsS3Properties.getImageBucketName(), hashName);
+        String url = String.format("https://%s.s3.sa-east-1.amazonaws.com/%s",
+                awsS3Properties.getImageBucketName(), hashName);
+
+        return BucketImageObject.builder()
+                .key(hashName)
+                .bucketName(awsS3Properties.getImageBucketName())
+                .url(url)
+                .build();
     }
 
     public void removeImage(String bucket, String imageKey) throws AmazonServiceException {
         s3.deleteObject(bucket, imageKey);
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class BucketImageObject {
+        private String key;
+        private String bucketName;
+        private String url;
     }
 
 }

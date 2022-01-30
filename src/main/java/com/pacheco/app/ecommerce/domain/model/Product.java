@@ -26,6 +26,7 @@ public class Product {
     private Boolean active;
 
     @OneToOne
+    @JoinColumn(name = "image_key")
     private Image image;
 
     @ManyToMany
