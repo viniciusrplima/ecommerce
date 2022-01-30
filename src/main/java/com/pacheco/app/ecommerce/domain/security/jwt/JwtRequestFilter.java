@@ -1,5 +1,6 @@
 package com.pacheco.app.ecommerce.domain.security.jwt;
 
+import com.pacheco.app.ecommerce.api.exceptionhandler.ApiExceptionHandler;
 import com.pacheco.app.ecommerce.domain.service.AuthenticationUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private AuthenticationUserDetailsService userDetailsService;
 
+    @Autowired
+    private ApiExceptionHandler exceptionHandler;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -42,16 +46,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (requestToken != null && requestToken.startsWith("Bearer ")) {
             String jwtToken = requestToken.substring(7);
-
-            try {
-                updateSecurityContext(jwtToken, request);
-            }
-            catch (IllegalArgumentException e) {
-                throw new AuthenticationException(COULD_NOT_EXTRACT_TOKEN, e);
-            }
-            catch (ExpiredJwtException e) {
-                throw new AuthenticationException(TOKEN_EXPIRED, e);
-            }
+            updateSecurityContext(jwtToken, request, response);
         }
         else {
             log.warn("Token don't starts with prefix Bearer");
@@ -61,6 +56,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     }
 
     private void updateSecurityContext(String jwtToken,
+                                       HttpServletRequest request,
+                                       HttpServletResponse response) throws AuthenticationException {
+        try {
+            doUpdateSecurityContext(jwtToken, request);
+        } catch (IllegalArgumentException e) {
+            exceptionHandler.handleAuthenticationError(COULD_NOT_EXTRACT_TOKEN, response);
+        } catch (ExpiredJwtException e) {
+            exceptionHandler.handleAuthenticationError(TOKEN_EXPIRED, response);
+        }
+    }
+
+    private void doUpdateSecurityContext(String jwtToken,
                                        HttpServletRequest request) throws IllegalArgumentException, ExpiredJwtException {
         String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 

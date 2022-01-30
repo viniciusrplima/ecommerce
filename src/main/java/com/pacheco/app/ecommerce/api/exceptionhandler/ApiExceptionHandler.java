@@ -1,13 +1,17 @@
 package com.pacheco.app.ecommerce.api.exceptionhandler;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.PropertyBindingException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pacheco.app.ecommerce.domain.exception.BusinessException;
 import com.pacheco.app.ecommerce.domain.exception.EntityUsedException;
 import com.pacheco.app.ecommerce.domain.exception.NotFoundEntityException;
 import com.pacheco.app.ecommerce.infrastructure.email.EmailFactory;
 import com.pacheco.app.ecommerce.infrastructure.email.EmailService;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -15,6 +19,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -29,6 +34,9 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -253,6 +261,45 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
         return handleExceptionInternal(e, problem, new HttpHeaders(), status, request);
     }
+
+    /* SECURITY EXCEPTION HANDLERS */
+
+    public void handleAuthenticationError(String message,
+                                          HttpServletResponse response) {
+
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        ProblemType type = ProblemType.AUTHENTICATION_ERROR;
+        String detail = message;
+        Problem problem = createProblemBuilder(status, type, detail)
+                .userMessage(detail)
+                .build();
+
+        handleSecurityExceptionInternal(problem, response);
+    }
+
+    private void handleSecurityExceptionInternal(Problem problem, HttpServletResponse response) {
+        response.setStatus(problem.getStatus());
+        response.setCharacterEncoding("utf-8");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        try {
+            String problemJson = objectMapper.writeValueAsString(problem);
+
+            PrintWriter printWriter = response.getWriter();
+            printWriter.println(problemJson);
+            printWriter.flush();
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*******************************/
+
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,

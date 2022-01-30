@@ -1,6 +1,7 @@
 package com.pacheco.app.ecommerce.domain.security;
 
 import com.pacheco.app.ecommerce.api.controller.Routes;
+import com.pacheco.app.ecommerce.api.exceptionhandler.ApiExceptionHandler;
 import com.pacheco.app.ecommerce.domain.model.account.UserPermission;
 import com.pacheco.app.ecommerce.domain.security.jwt.JwtAuthenticationFilter;
 import com.pacheco.app.ecommerce.domain.security.jwt.JwtConfig;
@@ -39,6 +40,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
+    @Autowired
+    private ApiExceptionHandler apiExceptionHandler;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -46,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), jwtConfig, jwtTokenUtil))
+            .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), jwtConfig, jwtTokenUtil, apiExceptionHandler))
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeRequests()
             .antMatchers(Routes.REGISTER).permitAll()
