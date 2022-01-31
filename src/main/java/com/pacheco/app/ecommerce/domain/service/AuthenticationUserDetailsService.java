@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class AuthenticationUserDetailsService implements UserDetailsService {
 
@@ -29,8 +32,7 @@ public class AuthenticationUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(username)
                 .password(user.getPassword())
-                .roles(user.getRole().name())
-                .authorities(user.getRole().getPermissions())
+                .authorities(user.getRole().getAuthorities())
                 .build();
     }
 }

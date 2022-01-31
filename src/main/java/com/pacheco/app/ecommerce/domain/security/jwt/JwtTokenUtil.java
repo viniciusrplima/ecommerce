@@ -8,10 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class JwtTokenUtil {
@@ -28,7 +25,7 @@ public class JwtTokenUtil {
     }
 
     public List<String> getPermissionsFromToken(String token) {
-        return getClaims(token).get("permissions", List.class);
+        return getClaims(token).get("authorities", List.class);
     }
 
     public Claims getClaims(String token) {
@@ -53,10 +50,9 @@ public class JwtTokenUtil {
         return doGenerateToken(claims, subject);
     }
 
-    public String generateToken(String subject, String role, List<String> permissions) {
+    public String generateToken(String subject, Collection<String> authorities) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
-        claims.put("permissions", permissions);
+        claims.put("authorities", authorities);
         return doGenerateToken(claims, subject);
     }
 
