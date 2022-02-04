@@ -33,7 +33,6 @@ public class ProductService {
         return repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    @Transactional
     public void delete(Long id) {
         try {
             repository.deleteById(id);
