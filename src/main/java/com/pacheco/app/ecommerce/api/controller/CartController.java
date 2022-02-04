@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigInteger;
 import java.util.List;
 
 @RestController
@@ -30,6 +31,11 @@ public class CartController {
 
     @Autowired
     private CartMapper cartMapper;
+
+    @GetMapping("/total")
+    public BigInteger getNumItemsInCart() {
+        return cartRepository.countTotalCartItems(userService.getCurrentUsername());
+    }
 
     @GetMapping
     public List<CartItemModel> getCartItems() {
