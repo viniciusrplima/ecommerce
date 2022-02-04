@@ -3,20 +3,20 @@ package com.pacheco.app.ecommerce.api.controller;
 import com.pacheco.app.ecommerce.api.mapper.ProductMapper;
 import com.pacheco.app.ecommerce.api.model.input.ProductInput;
 import com.pacheco.app.ecommerce.api.model.output.ProductModel;
+import com.pacheco.app.ecommerce.api.model.output.SearchProductModel;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import com.pacheco.app.ecommerce.domain.service.ProductService;
-import com.pacheco.app.ecommerce.infrastructure.awsS3.AwsS3ImageBucket;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Links;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
 
 
 @RestController
@@ -34,12 +34,18 @@ public class ProductController {
     private ProductMapper productMapper;
 
     @GetMapping
-    public List<ProductModel> getProducts(@RequestParam(value = "q", required = false) String query,
+    public SearchProductModel getProducts(@RequestHeader("Host") String host,
+                                          @RequestParam(value = "q", required = false) String query,
                                           @RequestParam(value = "limit", required = false) Long limit,
                                           @RequestParam(value = "page", required = false) Long page,
                                           @RequestParam(value = "type", required = false) Long type) {
-        return productMapper.toRepresentationList(
-                repository.findWithAttrbutes(query, type, limit, page));
+        SearchProductModel searchModel = productMapper.toSearchProductRepresentation(
+                repository.findWithAttributes(query, type, limit, page));
+
+        Long count = repository.countWithAttributes(query, type);
+        searchModel.setCount(count);
+
+        return searchModel;
     }
 
     @GetMapping("/{productId}")

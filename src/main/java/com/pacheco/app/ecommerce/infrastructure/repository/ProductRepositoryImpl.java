@@ -26,9 +26,21 @@ public class ProductRepositoryImpl implements ProductRepositoryQueries {
     @Autowired @Lazy
     private ProductRepository productRepository;
 
+
     @Override
     @Transactional
-    public List<Product> findWithAttrbutes(String query, Long type, Long limit, Long page) {
+    public List<Product> findWithAttributes(String query, Long type, Long limit, Long page) {
+        List<Specification<Product>> specs = createSpecifications(query, type);
+        return productRepository.findAllPaginated(specs, limit, page);
+    }
+
+    @Override
+    public Long countWithAttributes(String query, Long type) {
+        List<Specification<Product>> specs = createSpecifications(query, type);
+        return productRepository.countAll(specs);
+    }
+
+    private List<Specification<Product>> createSpecifications(String query, Long type) {
         List<Specification<Product>> specs = new ArrayList<>();
 
         if (query != null && !query.isBlank()) {
@@ -39,7 +51,8 @@ public class ProductRepositoryImpl implements ProductRepositoryQueries {
             specs.add(withType(type));
         }
 
-        return productRepository.findAllPaginated(specs, limit, page);
+        return specs;
     }
+
 
 }

@@ -80,7 +80,7 @@ public class ProductRegisterIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numProductsRegistred));
+            .body("products", hasSize(numProductsRegistred));
     }
 
     @Test

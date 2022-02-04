@@ -12,4 +12,5 @@ public interface CustomJpaRepository<T, ID> extends JpaRepository<T, ID>, JpaSpe
 
     public List<T> findAllPaginated(Specification<T> spec, Long limit, Long page);
     public List<T> findAllPaginated(List<Specification<T>> specs, Long limit, Long page);
+    public Long countAll(List<Specification<T>> specs);
 }

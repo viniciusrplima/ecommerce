@@ -204,7 +204,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemType type = ProblemType.INVALID_PARAM;
         String detail = String.format(METHOD_ARGUMENT_TYPE_MISMATCH_MSG,
                 e.getParameter(), e.getValue(), e.getRequiredType());
-        Problem problem = createProblemBuilder(status, type, detail).build();
+        Problem problem = createProblemBuilder(status, type, detail)
+                .userMessage(detail)
+                .build();
 
         return handleExceptionInternal(e, problem, new HttpHeaders(), status, request);
     }
@@ -254,7 +256,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ProblemType type = ProblemType.INTERNAL_ERROR;
         String detail = MSG_ERRO_GENERICO_USUARIO_FINAL;
-        Problem problem = createProblemBuilder(status, type, detail).build();
+        Problem problem = createProblemBuilder(status, type, detail)
+                .userMessage(detail)
+                .build();
 
         e.printStackTrace();
         sendEmailIfInProduction(e);

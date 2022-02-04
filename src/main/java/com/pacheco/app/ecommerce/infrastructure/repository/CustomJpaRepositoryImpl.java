@@ -7,10 +7,8 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
+import java.math.BigInteger;
 import java.util.List;
 
 public class CustomJpaRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements CustomJpaRepository<T, ID> {
@@ -45,6 +43,18 @@ public class CustomJpaRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> i
         query.setFirstResult((int) ((page-1) * limit));
 
         return query.getResultList();
+    }
+
+    @Override
+    public Long countAll(List<Specification<T>> specs) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
+        Root<T> root = criteria.from(getDomainClass());
+
+        criteria.select(builder.count(root))
+                .where(toPredicates(specs, root, criteria, builder));
+
+        return entityManager.createQuery(criteria).getSingleResult();
     }
 
     private Predicate[] toPredicates(List<Specification<T>> specs,

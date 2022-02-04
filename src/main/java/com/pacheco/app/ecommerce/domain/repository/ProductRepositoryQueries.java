@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ProductRepositoryQueries {
 
-    public List<Product> findWithAttrbutes(String query, Long type, Long limit, Long page);
+    public List<Product> findWithAttributes(String query, Long type, Long limit, Long page);
+    public Long countWithAttributes(String query, Long type);
 
 }

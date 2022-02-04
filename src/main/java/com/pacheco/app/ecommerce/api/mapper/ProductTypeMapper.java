@@ -1,7 +1,6 @@
 package com.pacheco.app.ecommerce.api.mapper;
 
 import com.pacheco.app.ecommerce.api.model.input.ProductTypeInput;
-import com.pacheco.app.ecommerce.api.model.output.ProductModel;
 import com.pacheco.app.ecommerce.api.model.output.ProductTypeModel;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
 import org.modelmapper.ModelMapper;

@@ -2,6 +2,7 @@ package com.pacheco.app.ecommerce.api.mapper;
 
 import com.pacheco.app.ecommerce.api.model.input.ProductInput;
 import com.pacheco.app.ecommerce.api.model.output.ProductModel;
+import com.pacheco.app.ecommerce.api.model.output.SearchProductModel;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,12 @@ public class ProductMapper {
         return productList.stream()
                 .map(this::toRepresentation)
                 .collect(Collectors.toList());
+    }
+
+    public SearchProductModel toSearchProductRepresentation(List<Product> productList) {
+        SearchProductModel searchModel = new SearchProductModel();
+        searchModel.setProducts(toRepresentationList(productList));
+        return searchModel;
     }
 
 }

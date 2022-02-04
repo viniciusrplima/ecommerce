@@ -71,8 +71,8 @@ public class ProductSearchIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("name[0]", equalTo(samsungProd.getName()))
-            .body("description[0]", equalTo(samsungProd.getDescription()));
+            .body("products.name[0]", equalTo(samsungProd.getName()))
+            .body("products.description[0]", equalTo(samsungProd.getDescription()));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class ProductSearchIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(limit));
+            .body("products", hasSize(limit));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class ProductSearchIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(0));
+            .body("products", hasSize(0));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ProductSearchIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("name[0]", equalTo(samsungProd.getName()));
+            .body("products.name[0]", equalTo(samsungProd.getName()));
     }
 
     private void prepareData() {
