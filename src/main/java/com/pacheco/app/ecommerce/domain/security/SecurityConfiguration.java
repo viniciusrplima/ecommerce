@@ -10,7 +10,6 @@ import com.pacheco.app.ecommerce.domain.security.jwt.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -47,7 +46,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private ApiExceptionHandler apiExceptionHandler;
 
     @Override
-    // CHECKSTYLE:OFF
     protected void configure(HttpSecurity http) throws Exception {
         http
             .cors().and()
@@ -56,39 +54,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and()
             .addFilter(new JwtAuthenticationFilter(
                     authenticationManagerBean(), jwtConfig, jwtTokenUtil, apiExceptionHandler))
-            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-            .authorizeRequests()
-            .antMatchers(Routes.REGISTER).permitAll()
-            .antMatchers(generalizeRoutes(Routes.USERS, Routes.CART)).authenticated()
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
-            .antMatchers(HttpMethod.GET, generalizeRoutes(Routes.MANAGEMENT))
-                .hasAnyAuthority(UserPermission.USER_READ.getPermission())
-
-            .antMatchers(HttpMethod.POST, generalizeRoutes(Routes.MANAGEMENT))
-
-                .hasAnyAuthority(UserPermission.USER_WRITE.getPermission())
-            .antMatchers(HttpMethod.PUT, generalizeRoutes(Routes.MANAGEMENT))
-
-                .hasAnyAuthority(UserPermission.USER_WRITE.getPermission())
-            .antMatchers(HttpMethod.DELETE, generalizeRoutes(Routes.MANAGEMENT))
-
-                .hasAnyAuthority(UserPermission.USER_DELETE.getPermission())
-            .antMatchers(HttpMethod.GET, generalizeRoutes(Routes.PRODUCTS, Routes.PRODUCT_TYPES)).permitAll()
-
-            .antMatchers(HttpMethod.POST, generalizeRoutes(Routes.PRODUCTS, Routes.PRODUCT_TYPES))
-                .hasAnyAuthority(UserPermission.PRODUCT_WRITE.getPermission())
-
-            .antMatchers(HttpMethod.PUT, generalizeRoutes(Routes.PRODUCTS, Routes.PRODUCT_TYPES))
-                .hasAnyAuthority(UserPermission.PRODUCT_WRITE.getPermission())
-
-            .antMatchers(HttpMethod.DELETE, generalizeRoutes(Routes.PRODUCTS, Routes.PRODUCT_TYPES))
-                .hasAnyAuthority(UserPermission.PRODUCT_DELETE.getPermission())
-
-            .anyRequest().authenticated();
+        PermissionsConfigurer.configure(http)
+                .authorize()
+                .permissionTo(Routes.REGISTER).free()
+                .permissionTo(Routes.MANAGEMENT)
+                    .read(UserPermission.USER_READ)
+                    .write(UserPermission.USER_WRITE)
+                    .delete(UserPermission.USER_DELETE)
+                .permissionTo(Routes.PRODUCTS, Routes.PRODUCT_TYPES)
+                    .freeRead()
+                    .write(UserPermission.PRODUCT_WRITE)
+                    .delete(UserPermission.PRODUCT_DELETE)
+                .done();
     }
-    // CHECKSTYLE:ON
 
-    public String[] generalizeRoutes(String... routes) {
+    private String[] generalizeRoutes(String... routes) {
         return Arrays.asList(routes).stream()
                 .map(route -> (route + "/**"))
                 .toArray(String[]::new);
