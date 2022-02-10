@@ -32,7 +32,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(

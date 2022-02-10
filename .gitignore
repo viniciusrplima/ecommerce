@@ -1,5 +1,7 @@
 # DEVELOPMENT UTILS
 
+bin/
+
 src/main/java/com/pacheco/app/ecommerce/util/DummyData.java
 src/main/resources/ddl.sql
 src/main/resources/format.sql

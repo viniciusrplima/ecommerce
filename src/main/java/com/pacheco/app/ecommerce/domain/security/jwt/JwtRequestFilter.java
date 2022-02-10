@@ -67,8 +67,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
     }
 
-    private void doUpdateSecurityContext(String jwtToken,
-                                       HttpServletRequest request) throws IllegalArgumentException, ExpiredJwtException {
+    private void doUpdateSecurityContext(String jwtToken, HttpServletRequest request)
+            throws IllegalArgumentException, ExpiredJwtException {
+
         String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

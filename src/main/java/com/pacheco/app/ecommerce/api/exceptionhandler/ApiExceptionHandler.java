@@ -63,7 +63,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public static final String HTTP_MESSAGE_NOT_READABLE_MSG
             = "The requisition body is invalid. Verify syntax errors.";
 
-    public static final String RESOURCE_NOT_FOUND_MSG = "The resource '%s', that you have tried to access, do not exist.";
+    public static final String RESOURCE_NOT_FOUND_MSG =
+            "The resource '%s', that you have tried to access, do not exist.";
 
     public static final String MSSING_REQUEST_PART_MSG = "The part '%s' are missing in the request";
 

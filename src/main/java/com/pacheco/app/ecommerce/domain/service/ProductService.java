@@ -1,6 +1,9 @@
 package com.pacheco.app.ecommerce.domain.service;
 
-import com.pacheco.app.ecommerce.domain.exception.*;
+import com.pacheco.app.ecommerce.domain.exception.EntityUsedException;
+import com.pacheco.app.ecommerce.domain.exception.OutOfStockException;
+import com.pacheco.app.ecommerce.domain.exception.ProductNotEnoughException;
+import com.pacheco.app.ecommerce.domain.exception.ProductNotFoundException;
 import com.pacheco.app.ecommerce.domain.model.Image;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;

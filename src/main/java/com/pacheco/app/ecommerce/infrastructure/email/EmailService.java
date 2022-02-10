@@ -5,7 +5,13 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.mail.*;
+import javax.mail.Address;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
@@ -40,8 +46,8 @@ public class EmailService {
         }
     }
 
-    private void doSendSimpleEmail(String to, String title, String message, String contentType) throws MessagingException,
-            UnsupportedEncodingException {
+    private void doSendSimpleEmail(String to, String title, String message, String contentType)
+            throws MessagingException, UnsupportedEncodingException {
 
         Properties props = new Properties();
         //props.put("mail.debug", "true");

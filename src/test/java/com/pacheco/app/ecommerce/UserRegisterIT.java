@@ -28,7 +28,8 @@ import java.util.List;
 
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)

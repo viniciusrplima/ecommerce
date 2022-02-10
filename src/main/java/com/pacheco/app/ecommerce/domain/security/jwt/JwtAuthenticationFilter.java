@@ -2,7 +2,10 @@ package com.pacheco.app.ecommerce.domain.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pacheco.app.ecommerce.api.exceptionhandler.ApiExceptionHandler;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;

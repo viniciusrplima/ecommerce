@@ -40,7 +40,8 @@ public class UserController {
 
     @PostMapping(Routes.REGISTER)
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerModel register(@RequestBody @Validated({Default.class, Groups.ConsumerInfo.class}) UserInput userDTO) {
+    public CustomerModel register(
+            @RequestBody @Validated({Default.class, Groups.ConsumerInfo.class}) UserInput userDTO) {
         return userMapper.toCustomerRepresentation(
                 userService.registerConsumer(userMapper.toCustomerModel(userDTO)));
     }

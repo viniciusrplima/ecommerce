@@ -8,7 +8,12 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.*;
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.PRODUCT_DELETE;
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.PRODUCT_READ;
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.PRODUCT_WRITE;
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.USER_DELETE;
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.USER_READ;
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.USER_WRITE;
 
 public enum UserRole {
 

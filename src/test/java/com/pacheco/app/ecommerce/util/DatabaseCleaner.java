@@ -1,6 +1,11 @@
 package com.pacheco.app.ecommerce.util;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +45,8 @@ public class DatabaseCleaner {
 
         if (catalog == null || !catalog.endsWith("test")) {
             throw new RuntimeException(
-                    "Cannot clear database tables because '" + catalog + "' is not a test database (suffix 'test' not found).");
+                    "Cannot clear database tables because '" + catalog
+                    + "' is not a test database (suffix 'test' not found).");
         }
     }
 

@@ -18,5 +18,7 @@ public class JwtConfig {
     private String prefix;
     private Integer hoursToExpire;
 
-    public String getAuthorizationHeader() { return HttpHeaders.AUTHORIZATION; }
+    public String getAuthorizationHeader() {
+        return HttpHeaders.AUTHORIZATION;
+    }
 }
