@@ -15,25 +15,29 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @Getter
 @NoArgsConstructor
 public class AuthenticationUtil {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
+    @Autowired private JwtTokenUtil jwtTokenUtil;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
+    private List<User> users;
     private User admin;
     private Customer customer;
 
     public void setUp() {
+        users = new ArrayList<>();
+
         User user = new User();
         user.setEmail("admin@admin.com");
         user.setPassword("admin");
         user.setRole(UserRole.ADMIN);
+        users.add(user);
 
         Customer customer = new Customer();
         customer.setEmail("customer@customer.com");
@@ -41,6 +45,7 @@ public class AuthenticationUtil {
         customer.setRole(UserRole.CUSTOMER);
         customer.setCpf("1235636998");
         customer.setPhone("25555666");
+        users.add(customer);
 
         this.admin = userService.register(user);
         this.customer = (Customer) userService.registerConsumer(customer);
