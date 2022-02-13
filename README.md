@@ -2,6 +2,25 @@
 
 Sample e-commerce of generic products.
 
+## Configuring
+
+The system uses the following environment variables:
+
+| Variable | Use |
+|------|------|
+| PORT | Port used by the rest API. |
+| DATABASE_URL | Postgres Database URL. |
+| DATABASE_USERNAME | Postgres Database Username. |
+| APPLICATION_JWT_SECRET | Secret used to proccess JWT tokens |
+| APPLICATION_JWT_EXPIRE_TIME | JWT token expiration time. |
+| APP_EMAIL_MAIN_EMAIL | Email used by system to send emails. |
+| APP_EMAIL_MAIN_PASSWORD | Main email password. |
+| APP_EMAIL_NOTIFY_EMAIL | Email used by system to notify admin about an event. |
+| APP_S3_IMAGE_BUCKET_NAME | Bucket name of the aws S3 to store images. |
+| AWS_ACCESS_KEY_ID | Key ID to access aws services. |
+| AWS_SECRET_ACCESS_KEY | Secret Key to access aws services. |
+
+
 ## Testing 
 
 You must configure the postgres user with the superuser 
