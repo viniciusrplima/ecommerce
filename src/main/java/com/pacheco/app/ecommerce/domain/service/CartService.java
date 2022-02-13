@@ -108,6 +108,14 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
+    // get cart and delete it
+    public Cart finalizeCart() {
+        Cart cart = userService.getCurrentCustomer().getCart();
+        cartItemRepository.deleteAll(cart.getItems());
+        cartRepository.delete(cart);
+        return  cart;
+    }
+
     private Cart createEmptyCart(Customer customer) {
         Cart cart = new Cart();
         cart.setCustomer(customer);

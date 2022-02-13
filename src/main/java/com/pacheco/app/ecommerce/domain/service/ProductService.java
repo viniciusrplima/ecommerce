@@ -64,6 +64,11 @@ public class ProductService {
     @Transactional
     public Product replaceProductInStock(Long productId, BigInteger quantity) {
         Product product = findById(productId);
+        return replaceProductInStock(product, quantity);
+    }
+
+    @Transactional
+    public Product replaceProductInStock(Product product, BigInteger quantity) {
         product.setStock(product.getStock().add(quantity));
         return repository.save(product);
     }

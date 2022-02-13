@@ -1,10 +1,8 @@
 package com.pacheco.app.ecommerce.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -14,7 +12,8 @@ import java.math.BigInteger;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-//@Entity
+@Entity
+@Builder
 public class PurchaseItem {
 
     @Id
@@ -28,6 +27,7 @@ public class PurchaseItem {
 
     @OneToOne
     @JsonIgnore
+    @Lazy
     private Purchase purchase;
 
 }

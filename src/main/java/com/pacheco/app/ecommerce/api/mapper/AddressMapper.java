@@ -3,6 +3,7 @@ package com.pacheco.app.ecommerce.api.mapper;
 import com.pacheco.app.ecommerce.api.model.input.AddressInput;
 import com.pacheco.app.ecommerce.api.model.output.AddressModel;
 import com.pacheco.app.ecommerce.domain.model.Address;
+import com.pacheco.app.ecommerce.domain.model.EmbeddableAddress;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,5 +29,9 @@ public class AddressMapper {
 
     public Address toModel(AddressInput addressDTO) {
         return modelMapper.map(addressDTO, Address.class);
+    }
+
+    public EmbeddableAddress toModelEmbeddable(AddressInput addressDTO) {
+        return modelMapper.map(addressDTO, EmbeddableAddress.class);
     }
 }

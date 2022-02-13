@@ -3,9 +3,6 @@ package com.pacheco.app.ecommerce;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pacheco.app.ecommerce.api.controller.Routes;
 import com.pacheco.app.ecommerce.domain.model.Product;
-import com.pacheco.app.ecommerce.domain.model.ProductType;
-import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
-import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
 import com.pacheco.app.ecommerce.util.AuthenticationUtil;
 import com.pacheco.app.ecommerce.util.DataUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
@@ -22,9 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;

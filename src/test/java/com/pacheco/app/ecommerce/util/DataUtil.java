@@ -1,16 +1,22 @@
 package com.pacheco.app.ecommerce.util;
 
+import com.pacheco.app.ecommerce.domain.mapper.CartMapper;
 import com.pacheco.app.ecommerce.domain.model.Address;
 import com.pacheco.app.ecommerce.domain.model.Cart;
 import com.pacheco.app.ecommerce.domain.model.CartItem;
 import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
+import com.pacheco.app.ecommerce.domain.model.Purchase;
+import com.pacheco.app.ecommerce.domain.model.PurchaseItem;
+import com.pacheco.app.ecommerce.domain.model.PurchaseState;
 import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
 import com.pacheco.app.ecommerce.domain.repository.CartItemRepository;
 import com.pacheco.app.ecommerce.domain.repository.CartRepository;
 import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
 import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
+import com.pacheco.app.ecommerce.domain.repository.PurchaseItemRepository;
+import com.pacheco.app.ecommerce.domain.repository.PurchaseRepository;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +40,8 @@ public class DataUtil {
     @Autowired private CartItemRepository cartItemRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private AddressRepository addressRepository;
+    @Autowired private PurchaseRepository purchaseRepository;
+    @Autowired private PurchaseItemRepository purchaseItemRepository;
 
     private List<Product> products;
     private Product samsungProd;
@@ -47,6 +55,9 @@ public class DataUtil {
     private Cart cart;
 
     private List<Address> addresses;
+
+    private List<Purchase> purchases;
+    private Purchase purchase;
 
     public void prepareCarts() {
         prepareProducts();
@@ -148,4 +159,24 @@ public class DataUtil {
         userRepository.save(customer);
     }
 
+    public void preparePurchases() {
+        prepareCarts();
+        prepareAddresses();
+
+        purchases = new ArrayList<>();
+
+        purchase = Purchase.builder()
+                        .state(PurchaseState.WAITING)
+                        .address(addresses.get(0))
+                        .customer(authenticationUtil.getCustomer())
+                        .shipping(BigDecimal.valueOf(10.0))
+                        .build();
+        purchases.add(purchase);
+        purchaseRepository.saveAll(purchases);
+
+        List<PurchaseItem> purchaseItems = CartMapper.toPurchaseItems(cart, purchase);
+
+        purchaseItemRepository.saveAll(purchaseItems);
+        purchase.setItems(purchaseItems);
+    }
 }
