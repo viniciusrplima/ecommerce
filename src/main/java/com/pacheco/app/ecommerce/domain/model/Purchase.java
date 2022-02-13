@@ -1,12 +1,11 @@
 package com.pacheco.app.ecommerce.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.pacheco.app.ecommerce.domain.model.account.Customer;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,16 +13,23 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-//@Entity
+@Builder
+@Entity
 public class Purchase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
     private PurchaseState state;
 
     @Embedded
     private EmbeddableAddress address;
+
+    @OneToOne
+    private Customer customer;
+    private BigDecimal shipping;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

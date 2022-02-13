@@ -3,14 +3,8 @@ package com.pacheco.app.ecommerce;
 import com.pacheco.app.ecommerce.api.controller.Routes;
 import com.pacheco.app.ecommerce.domain.model.Cart;
 import com.pacheco.app.ecommerce.domain.model.CartItem;
-import com.pacheco.app.ecommerce.domain.model.Product;
-import com.pacheco.app.ecommerce.domain.model.account.Customer;
-import com.pacheco.app.ecommerce.domain.repository.CartItemRepository;
-import com.pacheco.app.ecommerce.domain.repository.CartRepository;
-import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
-import com.pacheco.app.ecommerce.domain.repository.UserRepository;
-import com.pacheco.app.ecommerce.domain.service.CartService;
 import com.pacheco.app.ecommerce.util.AuthenticationUtil;
+import com.pacheco.app.ecommerce.util.DataUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -23,13 +17,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.transaction.Transactional;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
@@ -50,39 +37,15 @@ public class CartRegisterIT {
     @LocalServerPort
     private int port;
 
-    @Autowired
-    DatabaseCleaner databaseCleaner;
-
-    @Autowired
-    AuthenticationUtil authenticationUtil;
-
-    @Autowired
-    CartService cartService;
-
-    @Autowired
-    ProductRepository productRepository;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    CartRepository cartRepository;
-
-    @Autowired
-    CartItemRepository cartItemRepository;
-
-    private int numCartItems;
-    private Cart cart;
-    private Product productOutOfStock;
-    private Long product1Id;
-    private int product1Count;
-    private int product1Stock;
+    @Autowired DatabaseCleaner databaseCleaner;
+    @Autowired AuthenticationUtil authenticationUtil;
+    @Autowired DataUtil dataUtil;
 
     @Before
     public void setUp() {
         databaseCleaner.clearTablesAndResetSequences();
         authenticationUtil.setUp();
-        prepareData();
+        dataUtil.prepareCarts();
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
@@ -98,56 +61,66 @@ public class CartRegisterIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numCartItems));
+            .body("", hasSize(dataUtil.getCart().getItems().size()));
     }
 
     @Test
     public void mustReturnCartWithUpdatedNumberOfProducts_whenAddProductToCart() {
+        Cart cart = dataUtil.getCart();
+        CartItem cartItem = cart.getItems().get(0);
+        int productCount = cartItem.getQuantity().intValue();
+        int productStock = cartItem.getProduct().getStock().intValue();
+
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
-            .pathParam("productId", product1Id)
+            .pathParam("productId", cartItem.getProduct().getId())
         .when()
             .post("/product/{productId}")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numCartItems))
-            .body("[0].quantity", is(product1Count + 1));
+            .body("", hasSize(cart.getItems().size()))
+            .body("[0].quantity", is(productCount + 1));
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
-            .pathParam("productId", product1Id)
+            .pathParam("productId", cartItem.getProduct().getId())
             .basePath("/products")
         .when()
             .get("/{productId}")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("stock", is(product1Stock - 1));
+            .body("stock", is(productStock - 1));
     }
 
     @Test
     public void mustReturnCartWithUpdatedNumberOfProducts_whenRemoveProductFromCart() {
-        given()
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
-            .accept(ContentType.JSON)
-            .pathParam("productId", product1Id)
-        .when()
-            .delete("/product/{productId}")
-        .then()
-            .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numCartItems - 1));
+        Cart cart = dataUtil.getCart();
+        CartItem cartItem = cart.getItems().get(0);
+        int productCount = cartItem.getQuantity().intValue();
+        int productStock = cartItem.getProduct().getStock().intValue();
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
-            .pathParam("productId", product1Id)
+            .pathParam("productId", cartItem.getProduct().getId())
+        .when()
+            .delete("/product/{productId}")
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("", hasSize(cart.getItems().size() - 1));
+
+        given()
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
+            .accept(ContentType.JSON)
+            .pathParam("productId", cartItem.getProduct().getId())
             .basePath("/products")
         .when()
             .get("/{productId}")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("stock", is(product1Stock + product1Count));
+            .body("stock", is(productStock + productCount));
     }
 
     @Test
@@ -155,7 +128,7 @@ public class CartRegisterIT {
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
-            .pathParam("productId", productOutOfStock.getId())
+            .pathParam("productId", dataUtil.getProductOutOfStock().getId())
         .when()
             .post("/product/{productId}")
         .then()
@@ -165,74 +138,86 @@ public class CartRegisterIT {
 
     @Test
     public void mustReturnUpdatedQuantityOfItemsInCart_whenAddCartItemQuantity() {
+        Cart cart = dataUtil.getCart();
+        CartItem cartItem = cart.getItems().get(0);
+        int productCount = cartItem.getQuantity().intValue();
+        int productStock = cartItem.getProduct().getStock().intValue();
         int quantityAdded = 5;
-        int updatedQuantity = product1Count + quantityAdded;
+        int updatedQuantity = productCount + quantityAdded;
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
-            .pathParam("productId", product1Id)
+            .pathParam("productId", cartItem.getProduct().getId())
             .body(String.format("{\"quantity\":%d }", updatedQuantity))
         .when()
             .put("/product/{productId}")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numCartItems))
+            .body("", hasSize(cart.getItems().size()))
             .body("[0].quantity", is(updatedQuantity));
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
-            .pathParam("productId", product1Id)
+            .pathParam("productId", cartItem.getProduct().getId())
             .basePath("/products")
         .when()
             .get("/{productId}")
             .then()
             .statusCode(HttpStatus.OK.value())
-            .body("stock", is(product1Stock - quantityAdded));
+            .body("stock", is(productStock - quantityAdded));
     }
 
     @Test
     public void mustReturnUpdatedQuantityOfItemsInCart_whenSubtractCartItemQuantity() {
+        Cart cart = dataUtil.getCart();
+        CartItem cartItem = cart.getItems().get(0);
+        int productCount = cartItem.getQuantity().intValue();
+        int productStock = cartItem.getProduct().getStock().intValue();
         int quantitySubtracted = 5;
-        int updatedQuantity = product1Count - quantitySubtracted;
+        int updatedQuantity = productCount - quantitySubtracted;
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
-            .pathParam("productId", product1Id)
+            .pathParam("productId", cartItem.getProduct().getId())
             .body(String.format("{\"quantity\":%d }", updatedQuantity))
         .when()
             .put("/product/{productId}")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numCartItems))
+            .body("", hasSize(cart.getItems().size()))
             .body("[0].quantity", is(updatedQuantity));
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
-            .pathParam("productId", product1Id)
+            .pathParam("productId", cartItem.getProduct().getId())
             .basePath("/products")
         .when()
             .get("/{productId}")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("stock", is(product1Stock + quantitySubtracted));
+            .body("stock", is(productStock + quantitySubtracted));
     }
 
     @Test
     public void mustReturnNotEnoughError_whenAddCartItemQuantityWithNotEnoughStock() {
+        Cart cart = dataUtil.getCart();
+        CartItem cartItem = cart.getItems().get(0);
+        int productCount = cartItem.getQuantity().intValue();
+        int productStock = cartItem.getProduct().getStock().intValue();
         int quantityAdded = 50;
-        int updatedQuantity = product1Count + quantityAdded;
+        int updatedQuantity = productCount + quantityAdded;
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
-            .pathParam("productId", product1Id)
+            .pathParam("productId", cartItem.getProduct().getId())
             .body(String.format("{\"quantity\":%d }", updatedQuantity))
         .when()
             .put("/product/{productId}")
@@ -241,47 +226,4 @@ public class CartRegisterIT {
             .body("detail", containsString("enough"));
     }
 
-
-    @Transactional
-    public void prepareData() {
-        product1Stock = 35;
-
-        List<Product> productList = new ArrayList<>();
-
-        Product product1 = new Product();
-        product1.setName("Samsung J1 Mini");
-        product1.setDescription("RAM: 2GB, CPU: 1.5GHz, HD: 16GB");
-        product1.setPrice(BigDecimal.valueOf(650));
-        product1.setActive(Boolean.TRUE);
-        product1.setStock(BigInteger.valueOf(product1Stock));
-        productList.add(product1);
-
-        productOutOfStock = new Product();
-        productOutOfStock.setName("Monark aro 27");
-        productOutOfStock.setDescription("Aro: 27cm, Marcha: sim, Freio a disco: sim");
-        productOutOfStock.setPrice(BigDecimal.valueOf(895));
-        productOutOfStock.setActive(Boolean.TRUE);
-        productOutOfStock.setStock(BigInteger.valueOf(0));
-        productList.add(productOutOfStock);
-
-        productList = productList.stream()
-                .map(product -> productRepository.save(product))
-                .collect(Collectors.toList());
-
-        numCartItems = productList.size();
-        product1Id = productList.get(0).getId();
-        product1Count = 7;
-
-        Customer customer = authenticationUtil.getCustomer();
-        final Cart cart = cartRepository.save(new Cart(customer));
-        cart.setCustomer(customer);
-        cart.setItems(productList.stream()
-                .map(product -> new CartItem(BigInteger.valueOf(product1Count), product, cart))
-                .map(cartItemRepository::save)
-                .collect(Collectors.toList()));
-
-        this.cart = cartRepository.save(cart);
-        customer.setCart(this.cart);
-        userRepository.save(customer);
-    }
 }

@@ -1,13 +1,6 @@
 package com.pacheco.app.ecommerce;
 
 import com.pacheco.app.ecommerce.api.controller.Routes;
-import com.pacheco.app.ecommerce.domain.model.Address;
-import com.pacheco.app.ecommerce.domain.model.account.Customer;
-import com.pacheco.app.ecommerce.domain.model.account.User;
-import com.pacheco.app.ecommerce.domain.model.account.UserRole;
-import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
-import com.pacheco.app.ecommerce.domain.repository.UserRepository;
-import com.pacheco.app.ecommerce.domain.security.jwt.JwtTokenUtil;
 import com.pacheco.app.ecommerce.util.AuthenticationUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
@@ -23,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
@@ -44,26 +36,16 @@ public class UserRegisterIT {
     public static final String USER_JSON_FILE = "/json/user.json";
     public static final String USER_VALIDATION_ERRORS_JSON_FILE = "/json/user-with-validation-errors.json";
 
-
     @LocalServerPort
     private int port;
 
-    @Autowired
-    DatabaseCleaner databaseCleaner;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    JwtTokenUtil jwtTokenUtil;
-
-    private String adminToken;
-    private int numUsers;
+    @Autowired DatabaseCleaner databaseCleaner;
+    @Autowired AuthenticationUtil authenticationUtil;
 
     @Before
     public void setUp() {
         databaseCleaner.clearTablesAndResetSequences();
-        prepareData();
+        authenticationUtil.setUp();
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
@@ -73,19 +55,19 @@ public class UserRegisterIT {
     @Test
     public void mustReturnAllUsers_whenGetUsers() {
         given()
-            .header(AUTH_HEADER_PARAM, adminToken)
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .accept(ContentType.JSON)
         .when()
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numUsers));
+            .body("", hasSize(authenticationUtil.getUsers().size()));
     }
 
     @Test
     public void mustReturnCode201_whenSaveUser() {
         given()
-            .header(AUTH_HEADER_PARAM, adminToken)
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .body(getContentFromResource(USER_JSON_FILE))
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
@@ -98,7 +80,7 @@ public class UserRegisterIT {
     @Test
     public void mustReturnValidationErrors_whenSaveUserWithValidationErrors() {
         ValidatableResponse response = given()
-            .header(AUTH_HEADER_PARAM, adminToken)
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
             .body(getContentFromResource(USER_VALIDATION_ERRORS_JSON_FILE))
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
@@ -115,32 +97,4 @@ public class UserRegisterIT {
         assertTrue(propertyNames.containsAll(List.of("email", "password", "role")));
     }
 
-
-    private void prepareData() {
-        List<User> userList = new ArrayList<>();
-
-        User admin = User.builder()
-                .name("admin")
-                .email("admin@admin.com")
-                .password("123456")
-                .role(UserRole.ADMIN)
-                .build();
-
-        userList.add(admin);
-        adminToken = "Bearer " + jwtTokenUtil.generateToken(admin.getEmail());
-
-        User customer = Customer.customerBuilder()
-                .name("vinicius")
-                .email("vinicius@email.com")
-                .password("123456")
-                .role(UserRole.CUSTOMER)
-                .cpf("12345678988")
-                .phone("(89) 8888-6933")
-                .build();
-
-        userList.add(customer);
-
-        userRepository.saveAll(userList);
-        numUsers = userList.size();
-    }
 }

@@ -3,10 +3,8 @@ package com.pacheco.app.ecommerce;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pacheco.app.ecommerce.api.controller.Routes;
 import com.pacheco.app.ecommerce.domain.model.Product;
-import com.pacheco.app.ecommerce.domain.model.ProductType;
-import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
-import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
 import com.pacheco.app.ecommerce.util.AuthenticationUtil;
+import com.pacheco.app.ecommerce.util.DataUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -21,9 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
@@ -48,26 +43,15 @@ public class ProductRegisterIT {
     @LocalServerPort
     private int port;
 
-    @Autowired
-    DatabaseCleaner databaseCleaner;
-
-    @Autowired
-    AuthenticationUtil authenticationUtil;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private ProductTypeRepository productTypeRepository;
-
-    private int numProductsRegistred;
-    private Product samsungProd;
+    @Autowired DatabaseCleaner databaseCleaner;
+    @Autowired AuthenticationUtil authenticationUtil;
+    @Autowired DataUtil dataUtil;
 
     @Before
     public void setUp() {
         databaseCleaner.clearTablesAndResetSequences();
         authenticationUtil.setUp();
-        prepareData();
+        dataUtil.prepareProducts();
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
@@ -82,7 +66,7 @@ public class ProductRegisterIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("products", hasSize(numProductsRegistred));
+            .body("products", hasSize(dataUtil.getProducts().size()));
     }
 
     @Test
@@ -101,6 +85,8 @@ public class ProductRegisterIT {
 
     @Test
     public void mustReturnProduct_whenGetProductById() {
+        Product samsungProd = dataUtil.getSamsungProd();
+
         given()
             .pathParam("productId", samsungProd.getId())
             .accept(ContentType.JSON)
@@ -151,7 +137,7 @@ public class ProductRegisterIT {
 
     @Test
     public void mustReturnProduct_whenUpdateProduct() throws JsonProcessingException {
-        int productId = samsungProd.getId().intValue();
+        int productId = dataUtil.getSamsungProd().getId().intValue();
 
         given()
             .body(getContentFromResource(PRODUCT_JSON_FILENAME))
@@ -168,7 +154,7 @@ public class ProductRegisterIT {
 
     @Test
     public void mustReturnValidationErrors_whenUpdateProductWithValidationErrors() throws JsonProcessingException {
-        int productId = samsungProd.getId().intValue();
+        int productId = dataUtil.getSamsungProd().getId().intValue();
 
         ValidatableResponse response = given()
             .body(getContentFromResource(PRODUCT_VALIDATION_ERROR_JSON_FILENAME))
@@ -193,41 +179,12 @@ public class ProductRegisterIT {
     public void mustReturnStatus204_whenDeleteProduct() {
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
-            .pathParam("productId", samsungProd.getId())
+            .pathParam("productId", dataUtil.getSamsungProd().getId())
             .accept(ContentType.JSON)
         .when()
             .delete("/{productId}")
         .then()
             .statusCode(HttpStatus.NO_CONTENT.value());
-    }
-
-    private void prepareData() {
-        List<Product> productList = new ArrayList<>();
-
-        samsungProd = new Product();
-        samsungProd.setName("Samsung J1 Mini");
-        samsungProd.setDescription("RAM: 2GB, CPU: 1.5GHz, HD: 16GB");
-        samsungProd.setPrice(BigDecimal.valueOf(650));
-        samsungProd.setActive(Boolean.TRUE);
-        samsungProd.setStock(BigInteger.valueOf(35));
-        productList.add(samsungProd);
-
-        Product product2 = new Product();
-        product2.setName("Monark aro 27");
-        product2.setDescription("Aro: 27cm, Marcha: sim, Freio a disco: sim");
-        product2.setPrice(BigDecimal.valueOf(895));
-        product2.setActive(Boolean.TRUE);
-        product2.setStock(BigInteger.valueOf(12));
-        productList.add(product2);
-
-        productRepository.saveAll(productList);
-        numProductsRegistred = productList.size();
-
-        ProductType defaultProductType = new ProductType();
-        defaultProductType.setName("default");
-        defaultProductType.setDescription("default description");
-
-        productTypeRepository.save(defaultProductType);
     }
 
 }

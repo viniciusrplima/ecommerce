@@ -2,11 +2,9 @@ package com.pacheco.app.ecommerce;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pacheco.app.ecommerce.api.controller.Routes;
-import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.model.ProductType;
-import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
-import com.pacheco.app.ecommerce.domain.repository.ProductTypeRepository;
 import com.pacheco.app.ecommerce.util.AuthenticationUtil;
+import com.pacheco.app.ecommerce.util.DataUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -21,9 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
@@ -44,30 +39,19 @@ public class ProductTypeRegisterIT {
     public static final String AUTH_HEADER_PARAM = "Authorization";
     public static final String PRODUCT_TYPE_FILE = "/json/product-type.json";
     public static final String PRODUCT_TYPE_VALIDATION_ERRORS_FILE = "/json/product-type-with-validation-errors.json";
+
     @LocalServerPort
     private int port;
 
-    @Autowired
-    DatabaseCleaner databaseCleaner;
-
-    @Autowired
-    ProductTypeRepository productTypeRepository;
-
-    @Autowired
-    ProductRepository productRepository;
-
-    @Autowired
-    AuthenticationUtil authenticationUtil;
-
-    private int numProductTypes;
-    private ProductType comidaProdType;
-    private ProductType withDependentProdType;
+    @Autowired DatabaseCleaner databaseCleaner;
+    @Autowired AuthenticationUtil authenticationUtil;
+    @Autowired DataUtil dataUtil;
 
     @Before
     public void setUp() {
         databaseCleaner.clearTablesAndResetSequences();
         authenticationUtil.setUp();
-        prepareData();
+        dataUtil.prepareProducts();
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
@@ -82,21 +66,23 @@ public class ProductTypeRegisterIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(numProductTypes));
+            .body("", hasSize(dataUtil.getProductTypes().size()));
     }
 
     @Test
     public void mustReturnTheProductType_whenGetProductTypeById() {
+        ProductType productType = dataUtil.getWithoutDependentProdType();
+
         given()
-            .pathParam("productTypeId", comidaProdType.getId())
+            .pathParam("productTypeId", productType.getId())
             .accept(ContentType.JSON)
         .when()
             .get("/{productTypeId}")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("id", is(comidaProdType.getId().intValue()))
-            .body("name", is(comidaProdType.getName()))
-            .body("description", is(comidaProdType.getDescription()));
+            .body("id", is(productType.getId().intValue()))
+            .body("name", is(productType.getName()))
+            .body("description", is(productType.getDescription()));
     }
 
     @Test
@@ -147,25 +133,29 @@ public class ProductTypeRegisterIT {
 
     @Test
     public void mustReturnStatus200andSameId_whenUpdateProductType() throws JsonProcessingException {
+        ProductType productType = dataUtil.getWithoutDependentProdType();
+
         given()
             .body(getContentFromResource(PRODUCT_TYPE_FILE))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
-            .pathParam("productTypeId", comidaProdType.getId())
+            .pathParam("productTypeId", productType.getId())
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
         .when()
             .put("/{productTypeId}")
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("id", is(comidaProdType.getId().intValue()));
+            .body("id", is(productType.getId().intValue()));
     }
 
     @Test
     public void mustReturnValidationErrors_whenUpdateAProductTypeWithParameterErrors() throws JsonProcessingException {
+        ProductType productType = dataUtil.getWithoutDependentProdType();
+
         ValidatableResponse response = given()
             .body(getContentFromResource(PRODUCT_TYPE_VALIDATION_ERRORS_FILE))
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
-            .pathParam("productTypeId", comidaProdType.getId())
+            .pathParam("productTypeId", productType.getId())
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
         .when()
@@ -182,7 +172,7 @@ public class ProductTypeRegisterIT {
 
     @Test
     public void mustReturnStatus204_whenDeleteProduct() {
-        long productTypeId = comidaProdType.getId();
+        long productTypeId = dataUtil.getWithoutDependentProdType().getId();
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
@@ -196,7 +186,7 @@ public class ProductTypeRegisterIT {
 
     @Test
     public void mustReturnStatus409_whenDeleteProductTypeWithDependent() {
-        long productTypeId = withDependentProdType.getId();
+        long productTypeId = dataUtil.getWithDependentProdType().getId();
 
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getAdminToken())
@@ -206,31 +196,5 @@ public class ProductTypeRegisterIT {
             .delete("/{productTypeId}", productTypeId)
         .then()
             .statusCode(HttpStatus.CONFLICT.value());
-    }
-
-    public void prepareData() {
-        List<ProductType> productTypeList = new ArrayList<>();
-
-        comidaProdType = new ProductType();
-        comidaProdType.setName("Comida");
-        comidaProdType.setDescription("Laticínios, Carnos, Queijos entre outros");
-        productTypeList.add(comidaProdType);
-
-        withDependentProdType = new ProductType();
-        withDependentProdType.setName("Artigos Esportivos");
-        withDependentProdType.setDescription("Bolas, Chuteiras, Raquetes entre outros");
-        productTypeList.add(withDependentProdType);
-
-        productTypeRepository.saveAll(productTypeList);
-        numProductTypes = productTypeList.size();
-
-        Product productDependent = new Product();
-        productDependent.setName("Bola");
-        productDependent.setDescription("diâmetro: 20cm; cor: vermelha");
-        productDependent.setActive(Boolean.TRUE);
-        productDependent.setStock(BigInteger.valueOf(20));
-        productDependent.setPrice(BigDecimal.valueOf(120));
-        productDependent.setTypes(List.of(withDependentProdType));
-        productRepository.save(productDependent);
     }
 }
