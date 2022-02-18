@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+
+ADD_USER_SQL=$(cat sql/add_user.sql)
+
+USER_DATA=data/users.csv
+
