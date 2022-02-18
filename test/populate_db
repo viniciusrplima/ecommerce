@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+
+DATABASE=$1
+USERNAME=$2
+PASSWORD=$3
+
+MIGRATIONS_FOLDER=../src/main/resources/db/migration
+MIGRATIONS_FILES=$(find $MIGRATIONS_FOLDER -regextype sed -regex '.*V[0-9]\{3\}__.*.sql$' | sort)
+
+if [ -z "$DATABASE" ] || [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
+    echo "You must especify a database name, an username and a password"
+    exit 1
+fi
+
+export PGDATABASE=$DATABASE
+export PGUSER=$USERNAME
+export PGPASSWORD=$PASSWORD
+
+# create tables using migrations
+for file in $MIGRATIONS_FILES; do
+    psql -f $file
+done
+
+# populate db
+./generate_products
+./generate_users

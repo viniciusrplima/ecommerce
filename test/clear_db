@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+
+DATABASE=$1
+USERNAME=$2
+PASSWORD=$3
+
+if [ -z "$DATABASE" ] || [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
+    echo "You must especify a database name, an username and a password"
+    exit 1
+fi
+
+export PGDATABASE=$DATABASE
+export PGUSER=$USERNAME
+export PGPASSWORD=$PASSWORD
+
+dropdb $DATABASE
+createdb $DATABASE

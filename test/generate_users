@@ -1,0 +1,53 @@
+#!/usr/bin/bash
+
+ADD_USER_SQL=$(cat sql/add_user.sql)
+ADD_CUSTOMER_SQL=$(cat sql/add_customer.sql)
+
+USER_DATA=$(cat data/users.csv)
+FIRST_NAMES=$(cat data/first_names.txt | shuf)
+LAST_NAMES=$(cat data/last_names.txt | shuf)
+
+DEFAULT_PASSWD=123
+
+NUM_RND_USERS=100
+
+# save predefined users
+IFS=$'\n'
+for user in $USER_DATA; do
+    email=$(echo $user | cut -d ',' -f 1)
+    name=$(echo $user | cut -d ',' -f 2)
+    raw_password=$(echo $user | cut -d ',' -f 3)
+    password=$(htpasswd -bnBC 10 "" $raw_password | tr -d ':\n' | sed -r 's/\//\\\//g')
+    role=$(echo $user | cut -d ',' -f 4)
+    SQL=$(echo $ADD_USER_SQL | 
+        sed -r "s/:email/$email/g" |
+        sed -r "s/:name/$name/g" |
+        sed -r "s/:password/$password/g" |
+        sed -r "s/:role/$role/g")
+    psql -c "$SQL"
+done
+
+# generate users
+INSERT_SQL=""
+for i in $(seq 1 $NUM_RND_USERS); do
+    first_name=$(echo $FIRST_NAMES | cut -d ' ' -f $i)
+    last_name=$(echo $LAST_NAMES | cut -d ' ' -f $i)
+    fname_low=$(echo $first_name | tr '[:upper:]' '[:lower:]')
+    lname_low=$(echo $last_name | tr '[:upper:]' '[:lower:]')
+    name="$first_name $last_name"
+    email="$fname_low.$lname_low@email.com"
+    # encrypt password and filter '/' symbols
+    password=$(htpasswd -bnBC 10 "" $DEFAULT_PASSWD | tr -d ':\n' | sed -r 's/\//\\\//g')
+    role="CUSTOMER"
+    SQL=$(echo $ADD_USER_SQL | 
+        sed -r "s/:email/$email/g" |
+        sed -r "s/:name/$name/g" |
+        sed -r "s/:password/$password/g" |
+        sed -r "s/:role/$role/g")
+    CUSTOMER_SQL=$(echo $ADD_CUSTOMER_SQL | 
+        sed -r "s/:email/$email/g" |
+        sed -r "s/:cpf/$RANDOM/g" |
+        sed -r "s/:phone/$RANDOM/g")
+    INSERT_SQL="${INSERT_SQL}${SQL}${CUSTOMER_SQL}"
+done
+psql -c $INSERT_SQL

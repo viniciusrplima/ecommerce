@@ -1,0 +1,53 @@
+#!/usr/bin//bash
+
+ADD_PRODUCT_SQL=$(cat sql/add_product.sql)
+ADD_PRODUCT_TYPE_SQL=$(cat sql/add_product_type.sql)
+
+FOOD_DATA=data/foods.csv
+ELETRONIC_DATA=data/eletronics.csv
+MODILE_DATA=data/mobiles.csv
+
+FOOD_TYPE_ID=$RANDOM
+MOBILES_TYPE_ID=$RANDOM
+ELETRONICS_TYPE_ID=$RANDOM
+
+# generate product types
+function generate_product_type_by_data () {
+    id=$1
+    name=$2
+    SQL=$(echo $ADD_PRODUCT_TYPE_SQL | 
+        sed -r "s/:id/$id/g" |
+        sed -r "s/:name/$name/g")
+    psql -c "$SQL"
+}
+
+# generate products
+function generate_product_by_data () {
+    PRODUCTS_DATA=$1
+    PRODUCT_TYPE=$2
+    IFS=$'\n' # ignore spaces in for
+    INSERT_SQL=""
+    for product in $(cat $PRODUCTS_DATA); do
+        id=$RANDOM
+        name=$(echo $product | cut -d ',' -f 1)
+        price=$(echo $product | cut -d ',' -f 2)
+        stock=$(echo $product | cut -d ',' -f 3)
+        SQL=$(echo $ADD_PRODUCT_SQL | 
+            sed -r "s/:product_type/$PRODUCT_TYPE/g" |
+            sed -r "s/:id/$id/g" |
+            sed -r "s/:name/$name/g" | 
+            sed -r "s/:price/$price/g" | 
+            sed -r "s/:stock/$stock/g")
+        INSERT_SQL="${INSERT_SQL}${SQL}"
+    done
+    psql -c "$INSERT_SQL"
+}
+
+
+generate_product_type_by_data $FOOD_TYPE_ID "Comidas"
+generate_product_type_by_data $ELETRONICS_TYPE_ID "Eletrônicos"
+generate_product_type_by_data $MOBILES_TYPE_ID "Móveis"
+
+generate_product_by_data $FOOD_DATA $FOOD_TYPE_ID
+generate_product_by_data $ELETRONIC_DATA $ELETRONICS_TYPE_ID
+generate_product_by_data $MODILE_DATA $MOBILES_TYPE_ID
