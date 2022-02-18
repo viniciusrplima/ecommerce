@@ -26,6 +26,7 @@ function generate_product_by_data () {
     PRODUCTS_DATA=$1
     PRODUCT_TYPE=$2
     IFS=$'\n' # ignore spaces in for
+    INSERT_SQL=""
     for product in $(cat $PRODUCTS_DATA); do
         id=$RANDOM
         name=$(echo $product | cut -d ',' -f 1)
@@ -37,8 +38,9 @@ function generate_product_by_data () {
             sed -r "s/:name/$name/g" | 
             sed -r "s/:price/$price/g" | 
             sed -r "s/:stock/$stock/g")
-        psql -c "$SQL"
+        INSERT_SQL="${INSERT_SQL}${SQL}"
     done
+    psql -c "$INSERT_SQL"
 }
 
 

@@ -1,7 +1,7 @@
 INSERT INTO auth_user(
-    email
-    name
-    password
+    email, 
+    name, 
+    password, 
     role
 ) VALUES (
     ':email', 
