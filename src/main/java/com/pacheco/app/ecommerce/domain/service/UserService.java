@@ -7,6 +7,7 @@ import com.pacheco.app.ecommerce.domain.exception.UserNotFoundException;
 import com.pacheco.app.ecommerce.domain.model.Address;
 import com.pacheco.app.ecommerce.domain.model.account.Customer;
 import com.pacheco.app.ecommerce.domain.model.account.User;
+import com.pacheco.app.ecommerce.domain.model.account.UserRole;
 import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
 import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ public class UserService {
 
     @Transactional
     public Customer registerConsumer(Customer customer) {
+        customer.setRole(UserRole.CUSTOMER);
         return (Customer) saveUser(customer);
     }
 
