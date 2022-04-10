@@ -3,6 +3,7 @@ package com.pacheco.app.ecommerce.infrastructure.email;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.mail.Address;
@@ -15,6 +16,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Properties;
 
 @Component
@@ -27,10 +29,16 @@ public class EmailService {
     @Getter
     private EmailConfig emailConfig;
 
+    @Autowired
+    private Environment environment;
+
     public void sendEmail(EmailObject email) {
-        new Thread(() -> {
-            this.processEmailSent(email);
-        }).start();
+        // send email only in production
+        if (List.of(environment.getActiveProfiles()).contains("prod")) {
+            new Thread(() -> {
+                this.processEmailSent(email);
+            }).start();
+        }
     }
 
     private void processEmailSent(EmailObject email) {

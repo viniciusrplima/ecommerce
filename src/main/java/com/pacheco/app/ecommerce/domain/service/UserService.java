@@ -49,6 +49,7 @@ public class UserService {
 
     @Transactional
     public User register(User user) {
+        user.setActive(true);
         return saveUser(user);
     }
 

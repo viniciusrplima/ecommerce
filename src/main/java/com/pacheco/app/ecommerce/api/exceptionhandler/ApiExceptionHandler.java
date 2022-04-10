@@ -11,7 +11,6 @@ import com.pacheco.app.ecommerce.domain.exception.EntityUsedException;
 import com.pacheco.app.ecommerce.domain.exception.NotFoundEntityException;
 import com.pacheco.app.ecommerce.infrastructure.email.EmailFactory;
 import com.pacheco.app.ecommerce.infrastructure.email.EmailService;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -76,9 +75,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Autowired
     private EmailFactory emailFactory;
-
-    @Autowired
-    private Environment environment;
 
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(
@@ -262,7 +258,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
 
         e.printStackTrace();
-        sendEmailIfInProduction(e);
+        sendInternalErrorEmail(e);
 
         return handleExceptionInternal(e, problem, new HttpHeaders(), status, request);
     }
@@ -327,10 +323,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return super.handleExceptionInternal(ex, body, headers, status, request);
     }
 
-    private void sendEmailIfInProduction(Exception e) {
-        if (List.of(environment.getActiveProfiles()).contains("prod")) {
-            emailService.sendEmail(emailFactory.createInternalErrorEmail(e));
-        }
+    private void sendInternalErrorEmail(Exception e) {
+        emailService.sendEmail(emailFactory.createInternalErrorEmail(e));
     }
 
     public Problem.ProblemBuilder createProblemBuilder(HttpStatus status, ProblemType type, String detail) {

@@ -36,6 +36,7 @@ public class AuthenticationUtil {
         User user = new User();
         user.setEmail("admin@admin.com");
         user.setPassword("admin");
+        user.setActive(true);
         user.setRole(UserRole.ADMIN);
         users.add(user);
 
@@ -44,6 +45,7 @@ public class AuthenticationUtil {
         customer.setPassword("customer");
         customer.setRole(UserRole.CUSTOMER);
         customer.setCpf("1235636998");
+        customer.setActive(true);
         customer.setPhone("25555666");
         users.add(customer);
 
