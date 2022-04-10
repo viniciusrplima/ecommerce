@@ -1,8 +1,11 @@
 package com.pacheco.app.ecommerce;
 
 import com.pacheco.app.ecommerce.api.controller.Routes;
+import com.pacheco.app.ecommerce.domain.model.Address;
+import com.pacheco.app.ecommerce.domain.model.account.Customer;
+import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
+import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import com.pacheco.app.ecommerce.util.AuthenticationUtil;
-import com.pacheco.app.ecommerce.util.DataUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.pacheco.app.ecommerce.util.ResourceUtil.getContentFromResource;
@@ -36,18 +40,22 @@ public class UserAddressRegisterIT {
     public static final String ADDRESS_JSON_FILE = "/json/address.json";
     public static final String ADDRESS_VALIDATION_ERRORS_JSON_FILE = "/json/address-with-validation-errors.json";
 
-    @Autowired DatabaseCleaner databaseCleaner;
-    @Autowired AuthenticationUtil authenticationUtil;
-    @Autowired DataUtil dataUtil;
-
     @LocalServerPort
     private int port;
+
+    @Autowired DatabaseCleaner databaseCleaner;
+    @Autowired AuthenticationUtil authenticationUtil;
+
+    @Autowired UserRepository userRepository;
+    @Autowired AddressRepository addressRepository;
+
+    private int totalAddresses;
 
     @Before
     public void setUp() {
         databaseCleaner.clearTablesAndResetSequences();
         authenticationUtil.setUp();
-        dataUtil.prepareAddresses();
+        prepareData();
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
@@ -63,7 +71,7 @@ public class UserAddressRegisterIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(dataUtil.getAddresses().size()));
+            .body("", hasSize(totalAddresses));
     }
 
     @Test
@@ -96,4 +104,37 @@ public class UserAddressRegisterIT {
         assertTrue(objectNames.containsAll(List.of("state", "city", "cep", "street", "number", "district")));
     }
 
+    public void prepareData() {
+        List<Address> addresses = new ArrayList<>();
+
+        Address address1 = Address.entityBuilder()
+                .state("PB")
+                .city("Campina Grande")
+                .cep("58699-222")
+                .district("Dinamerica")
+                .street("Floriano Peixoto")
+                .number("54G")
+                .complement("APT O203")
+                .build();
+        addresses.add(address1);
+
+        Address address2 = Address.entityBuilder()
+                .state("PB")
+                .city("Campina Grande")
+                .cep("58699-222")
+                .district("Dinamerica")
+                .street("Floriano Peixoto")
+                .number("54G")
+                .complement("APT O203")
+                .build();
+        addresses.add(address2);
+
+        addressRepository.saveAll(addresses);
+        totalAddresses = addresses.size();
+
+        Customer customer = authenticationUtil.getCustomer();
+        customer.setAddresses(addresses);
+
+        userRepository.save(customer);
+    }
 }
