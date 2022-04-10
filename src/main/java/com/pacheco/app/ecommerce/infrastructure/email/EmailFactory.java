@@ -38,6 +38,18 @@ public class EmailFactory {
 
     }
 
+    public EmailObject createEmailVerificationEmail(String email, String code) {
+        Context context = new Context();
+        context.setVariable("code", code);
+
+        return EmailObject.builder()
+                .title("Email Verification")
+                .to(email)
+                .contentType(HTML_CONTENT_TYPE)
+                .content(templateEngine.process("email-verification-email.html", context))
+                .build();
+    }
+
     private List<String> stackToStringFiltered(StackTraceElement[] stackTrace) {
         return List.of(stackTrace).stream()
                 .map(s -> s.toString())

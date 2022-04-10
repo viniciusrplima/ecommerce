@@ -3,6 +3,7 @@ package com.pacheco.app.ecommerce.api.controller;
 import com.pacheco.app.ecommerce.api.mapper.AddressMapper;
 import com.pacheco.app.ecommerce.api.mapper.UserMapper;
 import com.pacheco.app.ecommerce.api.model.input.AddressInput;
+import com.pacheco.app.ecommerce.api.model.input.EmailVerificationInput;
 import com.pacheco.app.ecommerce.api.model.input.UserInput;
 import com.pacheco.app.ecommerce.api.model.output.AddressModel;
 import com.pacheco.app.ecommerce.api.model.output.CustomerModel;
@@ -44,6 +45,11 @@ public class UserController {
             @RequestBody @Validated({Default.class, Groups.ConsumerInfo.class}) UserInput userDTO) {
         return userMapper.toCustomerRepresentation(
                 userService.registerConsumer(userMapper.toCustomerModel(userDTO)));
+    }
+
+    @PostMapping(Routes.EMAIL_VERIFICATION)
+    public void verifyEmail(@RequestBody EmailVerificationInput emailVerificationDTO) {
+        userService.verifyEmailFromUser(emailVerificationDTO.getEmail(), emailVerificationDTO.getCode());
     }
 
     @GetMapping(Routes.USERS + ADDRESSES)

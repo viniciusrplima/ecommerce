@@ -2,8 +2,10 @@ package com.pacheco.app.ecommerce.domain.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pacheco.app.ecommerce.api.exceptionhandler.ApiExceptionHandler;
+import lombok.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final static String BAD_CREDENTIALS_MSG = "Your username or password is incorrect. Please try again.";
     private final static String LOCKED_MSG = "The user '%s' is locked please wait until unlock it.";
+    private final static String INACTIVE_MSG = "The user '%s' is not verified, please see your email " +
+            "to get the verification code";
 
     private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
@@ -38,18 +42,30 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.exceptionHandler = exceptionHandler;
     }
 
+    @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
 
+        UsernamePasswordAuthRequest authenticationRequest =
+                new ObjectMapper().readValue(
+                        request.getInputStream(),
+                        UsernamePasswordAuthRequest.class
+                );
+
         try {
-            return doAttempAuthentication(request);
+            return doAttempAuthentication(authenticationRequest);
         }
         catch (BadCredentialsException e) {
             exceptionHandler.handleAuthenticationError(BAD_CREDENTIALS_MSG, response);
         }
         catch (LockedException e) {
-            exceptionHandler.handleAuthenticationError(LOCKED_MSG, response);
+            exceptionHandler.handleAuthenticationError(
+                    String.format(LOCKED_MSG, authenticationRequest.getUsername()), response);
+        }
+        catch (DisabledException e) {
+            exceptionHandler.handleAuthenticationError(
+                    String.format(INACTIVE_MSG, authenticationRequest.getUsername()), response);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -58,12 +74,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         return null;
     }
 
-    private Authentication doAttempAuthentication(HttpServletRequest request) throws IOException {
-        UsernamePasswordAuthRequest authenticationRequest =
-                new ObjectMapper().readValue(
-                        request.getInputStream(),
-                        UsernamePasswordAuthRequest.class
-                );
+    private Authentication doAttempAuthentication(UsernamePasswordAuthRequest authenticationRequest) throws IOException {
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getUsername(),

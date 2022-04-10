@@ -33,6 +33,7 @@ public class AuthenticationUserDetailsService implements UserDetailsService {
                 .username(username)
                 .password(user.getPassword())
                 .authorities(user.getRole().getAuthorities())
+                .disabled(!user.getActive())
                 .build();
     }
 }

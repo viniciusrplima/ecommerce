@@ -58,7 +58,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         PermissionsConfigurer.configure(http)
                 .authorize()
-                .permissionTo(Routes.REGISTER).free()
+                .permissionTo(Routes.REGISTER, Routes.EMAIL_VERIFICATION).free()
                 .permissionTo(Routes.MANAGEMENT)
                     .read(UserPermission.USER_READ)
                     .write(UserPermission.USER_WRITE)
