@@ -1,12 +1,23 @@
 package com.pacheco.app.ecommerce;
 
 import com.pacheco.app.ecommerce.api.controller.Routes;
+import com.pacheco.app.ecommerce.domain.mapper.CartMapper;
+import com.pacheco.app.ecommerce.domain.model.Address;
+import com.pacheco.app.ecommerce.domain.model.Cart;
 import com.pacheco.app.ecommerce.domain.model.CartItem;
+import com.pacheco.app.ecommerce.domain.model.Product;
 import com.pacheco.app.ecommerce.domain.model.Purchase;
 import com.pacheco.app.ecommerce.domain.model.PurchaseItem;
 import com.pacheco.app.ecommerce.domain.model.PurchaseState;
+import com.pacheco.app.ecommerce.domain.model.account.Customer;
+import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
+import com.pacheco.app.ecommerce.domain.repository.CartItemRepository;
+import com.pacheco.app.ecommerce.domain.repository.CartRepository;
+import com.pacheco.app.ecommerce.domain.repository.ProductRepository;
+import com.pacheco.app.ecommerce.domain.repository.PurchaseItemRepository;
+import com.pacheco.app.ecommerce.domain.repository.PurchaseRepository;
+import com.pacheco.app.ecommerce.domain.repository.UserRepository;
 import com.pacheco.app.ecommerce.util.AuthenticationUtil;
-import com.pacheco.app.ecommerce.util.DataUtil;
 import com.pacheco.app.ecommerce.util.DatabaseCleaner;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -22,7 +33,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -52,13 +65,45 @@ public class PurchaseRegisterIT {
 
     @Autowired DatabaseCleaner databaseCleaner;
     @Autowired AuthenticationUtil authenticationUtil;
-    @Autowired DataUtil dataUtil;
+
+    @Autowired UserRepository userRepository;
+    @Autowired ProductRepository productRepository;
+    @Autowired CartRepository cartRepository;
+    @Autowired CartItemRepository cartItemRepository;
+    @Autowired AddressRepository addressRepository;
+    @Autowired PurchaseRepository purchaseRepository;
+    @Autowired PurchaseItemRepository purchaseItemRepository;
+
+    private int totalPurchases;
+    private Purchase purchase;
+    private Cart cart;
+    private List<Product> products;
+
+    // class to compare puchase items in map format and the cart items
+    public class PurchaseCartItemsComparator implements Comparator<Object> {
+        @Override
+        public int compare(Object purchaseItemMapObj, Object cartItemObj) {
+            int result = 1;
+            Map<String, Object> purchaseItemMap = (Map<String, Object>) purchaseItemMapObj;
+            CartItem cartItem = (CartItem) cartItemObj;
+
+            BigInteger purchaseQuantity = BigInteger.valueOf((Integer) purchaseItemMap.get("quantity"));
+            Long purchaseProductId = Long.valueOf((Integer)((Map<String, Object>)purchaseItemMap.get("product")).get("id"));
+
+            if (cartItem.getQuantity().equals(purchaseQuantity) &&
+                    cartItem.getProduct().getId().equals(purchaseProductId)) {
+                result = 0;
+            }
+
+            return result;
+        }
+    }
 
     @Before
     public void setUp() {
         databaseCleaner.clearTablesAndResetSequences();
         authenticationUtil.setUp();
-        dataUtil.preparePurchases();
+        prepareData();
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
@@ -74,13 +119,11 @@ public class PurchaseRegisterIT {
             .get()
         .then()
             .statusCode(HttpStatus.OK.value())
-            .body("", hasSize(dataUtil.getPurchases().size()));
+            .body("", hasSize(totalPurchases));
     }
 
     @Test
     public void mustReturnPurchase_whenGetPurchaseById() {
-        Purchase purchase = dataUtil.getPurchase();
-
         given()
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
             .accept(ContentType.JSON)
@@ -123,21 +166,12 @@ public class PurchaseRegisterIT {
         .then()
             .statusCode(HttpStatus.CREATED.value())
             .body("state", is(PurchaseState.WAITING.name()))
-            .body("items", hasSize(dataUtil.getCart().getItems().size()));
+            .body("items", hasSize(cart.getItems().size()));
 
         // Verifying if it have all products from cart
         List<Map<String, Object>> purchaseItems = response.extract().jsonPath().getList("items");
-        List<CartItem> cartItems = dataUtil.getCart().getItems();
-
-        Comparator<Object> comparator = (p, ci) -> {
-            Map<String, Object> purchaseItem = (Map<String, Object>) p;
-            CartItem cartItem = (CartItem) ci;
-            return (cartItem.getQuantity().equals(BigInteger.valueOf((Integer) purchaseItem.get("quantity"))) &&
-                    cartItem.getProduct().getId().equals(
-                            Long.valueOf((Integer)((Map<String, Object>)purchaseItem.get("product")).get("id"))
-                    ))
-                    ? 0 : 1;
-        };
+        List<CartItem> cartItems = cart.getItems();
+        PurchaseCartItemsComparator comparator = new PurchaseCartItemsComparator();
 
         Assert.assertTrue(purchaseItems.stream().allMatch(
                 purchaseItem -> (cartItems.stream().anyMatch(
@@ -182,8 +216,6 @@ public class PurchaseRegisterIT {
 
     @Test
     public void mustReplaceInStockTheProducts_whenCancelPurchase() {
-        Purchase purchase = dataUtil.getPurchase();
-
         given()
             .accept(ContentType.JSON)
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
@@ -197,7 +229,7 @@ public class PurchaseRegisterIT {
         RestAssured.basePath = Routes.PRODUCTS;
 
         for (PurchaseItem purchaseItem : purchase.getItems()) {
-            BigInteger prevProductStock = dataUtil.getProducts().stream()
+            BigInteger prevProductStock = products.stream()
                     .filter(p -> p.getId().equals(purchaseItem.getProduct().getId()))
                     .findFirst().get().getStock();
             BigInteger expectedStock = prevProductStock.add(purchaseItem.getQuantity());
@@ -212,5 +244,70 @@ public class PurchaseRegisterIT {
                 .statusCode(HttpStatus.OK.value())
                 .body("stock", is(expectedStock.intValue()));
         }
+    }
+
+    public void prepareData() {
+        products = new ArrayList<>();
+
+        Product product1 = new Product();
+        product1.setName("Samsung J1 Mini");
+        product1.setDescription("RAM: 2GB, CPU: 1.5GHz, HD: 16GB");
+        product1.setPrice(BigDecimal.valueOf(650));
+        product1.setActive(Boolean.TRUE);
+        product1.setStock(BigInteger.valueOf(35));
+        products.add(product1);
+
+        Product product2 = new Product();
+        product2.setName("Monark aro 27");
+        product2.setDescription("Aro: 27cm, Marcha: sim, Freio a disco: sim");
+        product2.setPrice(BigDecimal.valueOf(895));
+        product2.setActive(Boolean.TRUE);
+        product2.setStock(BigInteger.valueOf(12));
+        products.add(product2);
+
+        productRepository.saveAll(products);
+
+        Customer customer = authenticationUtil.getCustomer();
+        cart = cartRepository.save(new Cart(customer));
+
+        List<CartItem> cartItems = new ArrayList<>();
+        for (Product product : products) {
+            CartItem cartItem = new CartItem(BigInteger.valueOf(5), product, cart);
+            cartItem = cartItemRepository.save(cartItem);
+            cartItems.add(cartItem);
+        }
+
+        cart.setCustomer(customer);
+        cart.setItems(cartItems);
+        cart = cartRepository.save(cart);
+        customer.setCart(cart);
+        userRepository.save(customer);
+
+        Address address = Address.entityBuilder()
+                .state("PB")
+                .city("Campina Grande")
+                .cep("58699-222")
+                .district("Dinamerica")
+                .street("Floriano Peixoto")
+                .number("54G")
+                .complement("APT O203")
+                .build();
+
+        addressRepository.save(address);
+        customer.setAddresses(List.of(address));
+        userRepository.save(customer);
+
+        purchase = Purchase.builder()
+                .state(PurchaseState.WAITING)
+                .address(address)
+                .customer(authenticationUtil.getCustomer())
+                .shipping(BigDecimal.valueOf(10.0))
+                .build();
+        purchaseRepository.save(purchase);
+        totalPurchases = 1;
+
+        List<PurchaseItem> purchaseItems = CartMapper.toPurchaseItems(cart, purchase);
+        purchaseItemRepository.saveAll(purchaseItems);
+        purchase.setItems(purchaseItems);
     }
 }
