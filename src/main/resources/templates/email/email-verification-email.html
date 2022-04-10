@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        * {
+            font-family: Ubuntu, sans-serif;
+        }
+
+        .table {
+            padding: 70px 100px;
+            background-color: red;
+            background-color: #f5f5dc;
+        }
+
+        .table tr td {
+            text-align: center;
+        }
+
+        .codebox {
+            background-color: #334677;
+            color: white;
+            padding: 15px;
+            width: 100px;
+            text-align: center;
+            font-size: 14pt;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <table class="table">
+        <tr>
+            <td>
+                <h1>Email Verification</h1>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <i>Use the code bellow to enable your account at <b>E-commerce</b></i>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <h3 class="codebox"><b><span th:text="${code}"></span></b></h3>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
