@@ -55,3 +55,9 @@ GRANT ALL PRIVILEGES
 
 The test configuration can be customized changing the file
 `src/test/resources/application-test.properties`.
+
+Finally, run the command bellow to execute the integration tests.
+
+```bash
+mvn verify
+```
