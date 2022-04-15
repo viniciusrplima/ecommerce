@@ -11,6 +11,8 @@ The system uses the following environment variables:
 | PORT | Port used by the rest API. |
 | DATABASE_URL | Postgres Database URL. |
 | DATABASE_USERNAME | Postgres Database Username. |
+| ADMIN_USERNAME | Username for system admin account |
+| ADMIN_PASSWORD | Password for system admin account |
 | APPLICATION_JWT_SECRET | Secret used to proccess JWT tokens |
 | APPLICATION_JWT_EXPIRE_TIME | JWT token expiration time. |
 | APP_EMAIL_MAIN_EMAIL | Email used by system to send emails. |
