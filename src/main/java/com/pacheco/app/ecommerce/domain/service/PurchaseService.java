@@ -2,11 +2,12 @@ package com.pacheco.app.ecommerce.domain.service;
 
 import com.pacheco.app.ecommerce.domain.exception.PurchaseNotFoundException;
 import com.pacheco.app.ecommerce.domain.mapper.CartMapper;
+import com.pacheco.app.ecommerce.domain.model.Address;
 import com.pacheco.app.ecommerce.domain.model.Cart;
-import com.pacheco.app.ecommerce.domain.model.EmbeddableAddress;
 import com.pacheco.app.ecommerce.domain.model.Purchase;
 import com.pacheco.app.ecommerce.domain.model.PurchaseItem;
 import com.pacheco.app.ecommerce.domain.model.PurchaseState;
+import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
 import com.pacheco.app.ecommerce.domain.repository.CartRepository;
 import com.pacheco.app.ecommerce.domain.repository.PurchaseItemRepository;
 import com.pacheco.app.ecommerce.domain.repository.PurchaseRepository;
@@ -23,9 +24,11 @@ public class PurchaseService {
     @Autowired private CartService cartService;
     @Autowired private ProductService productService;
     @Autowired private UserService userService;
+    @Autowired private AddressRepository addressRepository;
 
-    public Purchase confirmPurchase(EmbeddableAddress address) {
+    public Purchase confirmPurchase(Address address) {
         Cart cart = cartService.finalizeCart();
+        address = addressRepository.save(address);
 
         Purchase purchase = Purchase.builder()
                 .address(address)

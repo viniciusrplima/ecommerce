@@ -7,24 +7,21 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-public class Address extends EmbeddableAddress {
+@Builder
+public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String state;
+    private String city;
+    private String cep;
+    private String street;
+    private String number;
+    private String district;
+    private String complement;
+    private String referencePoint;
 
-    @Builder(builderMethodName = "entityBuilder")
-    public Address(String state,
-                   String city,
-                   String cep,
-                   String street,
-                   String number,
-                   String district,
-                   String complement,
-                   String referencePoint,
-                   Long id) {
-        super(state, city, cep, street, number, district, complement, referencePoint);
-        this.id = id;
-    }
 }

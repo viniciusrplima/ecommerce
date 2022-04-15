@@ -283,7 +283,7 @@ public class PurchaseRegisterIT {
         customer.setCart(cart);
         userRepository.save(customer);
 
-        Address address = Address.entityBuilder()
+        Address address = Address.builder()
                 .state("PB")
                 .city("Campina Grande")
                 .cep("58699-222")
