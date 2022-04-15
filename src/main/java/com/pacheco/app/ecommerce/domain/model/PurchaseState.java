@@ -4,6 +4,7 @@ public enum PurchaseState {
 
     WAITING,
     PAYED,
-    DELIVERED;
+    DELIVERED,
+    DONE;
 
 }
