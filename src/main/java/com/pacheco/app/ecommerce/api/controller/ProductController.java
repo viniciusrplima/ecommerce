@@ -31,8 +31,7 @@ public class ProductController {
     private ProductMapper productMapper;
 
     @GetMapping
-    public SearchProductModel getProducts(@RequestHeader("Host") String host,
-                                          @RequestParam(value = "q", required = false) String query,
+    public SearchProductModel getProducts(@RequestParam(value = "q", required = false) String query,
                                           @RequestParam(value = "limit", required = false) Long limit,
                                           @RequestParam(value = "page", required = false) Long page,
                                           @RequestParam(value = "type", required = false) Long type) {
