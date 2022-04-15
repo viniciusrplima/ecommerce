@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -68,6 +69,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .write(UserPermission.PRODUCT_WRITE)
                     .delete(UserPermission.PRODUCT_DELETE)
                 .done();
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+            .antMatchers("/swagger-ui/**", "/webjars/**", "/swagger-resources/**", "/v2/**");
     }
 
     @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
