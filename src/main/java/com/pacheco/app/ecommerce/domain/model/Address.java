@@ -24,4 +24,9 @@ public class Address {
     private String complement;
     private String referencePoint;
 
+    public Address(Address address) {
+        this(address.getId(), address.getState(), address.getCity(), address.getCep(),
+                address.getStreet(), address.getNumber(), address.getDistrict(), address.getComplement(),
+                address.getReferencePoint());
+    }
 }

@@ -28,7 +28,7 @@ public class PurchaseService {
 
     public Purchase confirmPurchase(Address address) {
         Cart cart = cartService.finalizeCart();
-        address = addressRepository.save(address);
+        addressRepository.save(address);
 
         Purchase purchase = Purchase.builder()
                 .address(address)
