@@ -107,7 +107,7 @@ public class UserAddressRegisterIT {
     public void prepareData() {
         List<Address> addresses = new ArrayList<>();
 
-        Address address1 = Address.entityBuilder()
+        Address address1 = Address.builder()
                 .state("PB")
                 .city("Campina Grande")
                 .cep("58699-222")
@@ -118,7 +118,7 @@ public class UserAddressRegisterIT {
                 .build();
         addresses.add(address1);
 
-        Address address2 = Address.entityBuilder()
+        Address address2 = Address.builder()
                 .state("PB")
                 .city("Campina Grande")
                 .cep("58699-222")

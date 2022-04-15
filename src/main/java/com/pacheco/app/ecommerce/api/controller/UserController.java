@@ -25,8 +25,6 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    private final static String ADDRESSES = "/addresses";
-
     @Autowired
     private UserService userService;
 
@@ -52,25 +50,25 @@ public class UserController {
         userService.verifyEmailFromUser(emailVerificationDTO.getEmail(), emailVerificationDTO.getCode());
     }
 
-    @GetMapping(Routes.USERS + ADDRESSES)
+    @GetMapping(Routes.USER_ADDRESSES)
     public List<AddressModel> getAddresses() {
         return addressMapper.toRepresentationList(userService.getUserAddresses());
     }
 
-    @PostMapping(Routes.USERS + ADDRESSES)
+    @PostMapping(Routes.USER_ADDRESSES)
     @ResponseStatus(HttpStatus.CREATED)
     public AddressModel registerUserAdress(@RequestBody @Valid AddressInput addressDTO) {
         Address address = userService.registerAddress(addressMapper.toModel(addressDTO));
         return addressMapper.toRepresentation(address);
     }
 
-    @PutMapping(Routes.USERS + ADDRESSES + "/{addressId}")
+    @PutMapping(Routes.USER_ADDRESSES + "/{addressId}")
     public AddressModel updateAddress(@PathVariable Long addressId, @RequestBody @Valid AddressInput addressDTO) {
         Address address = userService.updateAddress(addressId, addressMapper.toModel(addressDTO));
         return addressMapper.toRepresentation(address);
     }
 
-    @DeleteMapping(Routes.USERS + ADDRESSES + "/{addressId}")
+    @DeleteMapping(Routes.USER_ADDRESSES + "/{addressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeAddress(@PathVariable Long addressId) {
         userService.removeAddress(addressId);

@@ -1,6 +1,8 @@
 package com.pacheco.app.ecommerce;
 
 import com.pacheco.app.ecommerce.api.controller.Routes;
+import com.pacheco.app.ecommerce.api.model.output.AddressModel;
+import com.pacheco.app.ecommerce.api.model.output.PurchaseModel;
 import com.pacheco.app.ecommerce.domain.mapper.CartMapper;
 import com.pacheco.app.ecommerce.domain.model.Address;
 import com.pacheco.app.ecommerce.domain.model.Cart;
@@ -59,6 +61,7 @@ public class PurchaseRegisterIT {
     public static final String AUTH_HEADER_PARAM = "Authorization";
     public static final String ADDRESS_JSON_FILE = "/json/address.json";
     public static final String ADDRESS_VALIDATION_ERROR_JSON_FILE = "/json/address-with-validation-errors.json";
+    public static final String ADDRESS_WITH_ID_JSON_FILE = "/json/address-with-id.json";
 
     @LocalServerPort
     private int port;
@@ -76,6 +79,7 @@ public class PurchaseRegisterIT {
 
     private int totalPurchases;
     private Purchase purchase;
+    private Address address;
     private Cart cart;
     private List<Product> products;
 
@@ -216,6 +220,18 @@ public class PurchaseRegisterIT {
 
     @Test
     public void mustReplaceInStockTheProducts_whenCancelPurchase() {
+        ValidatableResponse response = given()
+                .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(getContentFromResource(ADDRESS_JSON_FILE))
+                .when()
+                .post()
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body("state", is(PurchaseState.WAITING.name()))
+                .body("items", hasSize(cart.getItems().size()));
+
         given()
             .accept(ContentType.JSON)
             .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
@@ -244,6 +260,51 @@ public class PurchaseRegisterIT {
                 .statusCode(HttpStatus.OK.value())
                 .body("stock", is(expectedStock.intValue()));
         }
+    }
+
+    @Test
+    public void mustNotUpdatePurchaseAddress_whenUpdateUserAddress() {
+        PurchaseModel expectedPurchase = given()
+            .accept(ContentType.JSON)
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
+            .body(getContentFromResource(ADDRESS_JSON_FILE))
+            .pathParam("purchaseId", purchase.getId())
+        .when()
+            .get("/{purchaseId}", purchase.getId())
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract().as(PurchaseModel.class);
+        AddressModel expectedAddress = expectedPurchase.getAddress();
+
+        given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .basePath(Routes.USER_ADDRESSES)
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
+            .pathParam("addressId", address.getId())
+            .body(getContentFromResource(ADDRESS_JSON_FILE))
+        .when()
+            .put("/{addressId}", address.getId())
+        .then()
+            .statusCode(HttpStatus.OK.value());
+
+        given()
+            .accept(ContentType.JSON)
+            .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
+            .body(getContentFromResource(ADDRESS_JSON_FILE))
+            .pathParam("purchaseId", purchase.getId())
+        .when()
+            .get("/{purchaseId}", purchase.getId())
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("address.cep", is(expectedAddress.getCep()))
+            .body("address.city", is(expectedAddress.getCity()))
+            .body("address.street", is(expectedAddress.getStreet()))
+            .body("address.district", is(expectedAddress.getDistrict()))
+            .body("address.number", is(expectedAddress.getNumber()))
+            .body("address.referencePoint", is(expectedAddress.getReferencePoint()))
+            .body("address.state", is(expectedAddress.getState()))
+            .body("address.complement", is(expectedAddress.getComplement()));
     }
 
     public void prepareData() {
@@ -283,7 +344,7 @@ public class PurchaseRegisterIT {
         customer.setCart(cart);
         userRepository.save(customer);
 
-        Address address = Address.entityBuilder()
+        address = Address.builder()
                 .state("PB")
                 .city("Campina Grande")
                 .cep("58699-222")
@@ -292,14 +353,16 @@ public class PurchaseRegisterIT {
                 .number("54G")
                 .complement("APT O203")
                 .build();
+        Address purchaseAddress = new Address(address);
 
         addressRepository.save(address);
+        addressRepository.save(purchaseAddress);
         customer.setAddresses(List.of(address));
         userRepository.save(customer);
 
         purchase = Purchase.builder()
                 .state(PurchaseState.WAITING)
-                .address(address)
+                .address(purchaseAddress)
                 .customer(authenticationUtil.getCustomer())
                 .shipping(BigDecimal.valueOf(10.0))
                 .build();

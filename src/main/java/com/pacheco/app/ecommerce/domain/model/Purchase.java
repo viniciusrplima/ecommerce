@@ -24,8 +24,8 @@ public class Purchase {
     @Enumerated(EnumType.STRING)
     private PurchaseState state;
 
-    @Embedded
-    private EmbeddableAddress address;
+    @OneToOne
+    private Address address;
 
     @OneToOne
     private Customer customer;
