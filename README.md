@@ -2,6 +2,35 @@
 
 Sample e-commerce of generic products.
 
+## Running
+
+First, copy `.env.example` to `.env` and fill the variables 
+`APP_EMAIL_MAIN_EMAIL`, `APP_EMAIL_NOTIFY_EMAIL`, `APP_EMAIL_MAIN_PASSWORD`, 
+`APP_S3_IMAGE_BUCKET_NAME`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`. 
+See [this section](#configuring).
+
+```
+cp .env.example .env
+```
+
+Then, package the project with the command below.
+
+```
+mvn clean package
+```
+
+Finally, execute system with docker-compose.
+
+```
+docker-compose up --build
+```
+
+To stop the system you should execute the following command.
+
+```
+docker-compose down
+```
+
 ## Configuring
 
 The system uses the following environment variables:
