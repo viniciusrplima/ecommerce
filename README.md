@@ -22,7 +22,7 @@ mvn clean package
 Finally, execute system with docker-compose.
 
 ```
-docker-compose up --build
+docker-compose up -d --build
 ```
 
 To stop the system you should execute the following command.
