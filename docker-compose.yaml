@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+  ecommerce:
+    build: .
+    image: ecommerce:1.0
+    container_name: ecommerce
+    environment:
+      - PORT=3000
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/ecommerce
+      - DATABASE_USERNAME=ecommerce
+      - DATABASE_PASSWORD=ecommerce
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+      - APPLICATION_JWT_SECRET=ecommerce-secret
+      - APPLICATION_JWT_EXPIRE_TIME=5
+      - APP_EMAIL_MAIN_EMAIL=${APP_EMAIL_MAIN_EMAIL}
+      - APP_EMAIL_MAIN_PASSWORD=${APP_EMAIL_MAIN_PASSWORD}
+      - APP_EMAIL_NOTIFY_EMAIL=${APP_EMAIL_NOTIFY_EMAIL}
+      - APP_S3_IMAGE_BUCKET_NAME=${APP_S3_IMAGE_BUCKET_NAME}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    networks:
+      - ecommerce_network
+  postgres:
+    image: postgres:12.9
+    container_name: ecommerce_postgres
+    environment:
+      - POSTGRES_USER=ecommerce
+      - POSTGRES_PASSWORD=ecommerce
+      - POSTGRES_DB=ecommerce
+      - PGUSER=ecommerce
+      - PGPASSWORD=ecommerce
+    restart: unless-stopped
+    networks:
+      - ecommerce_network
+networks:
+  ecommerce_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.99.0.0/16
