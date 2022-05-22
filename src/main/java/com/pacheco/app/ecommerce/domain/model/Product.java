@@ -22,7 +22,6 @@ public class Product {
     private String name;
     private String description;
     private BigDecimal price;
-    private BigInteger stock;
     private Boolean active;
 
     @OneToOne
@@ -35,7 +34,6 @@ public class Product {
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "product_type_id")
     )
-    @JsonIgnore
     private List<ProductType> types;
 
 }

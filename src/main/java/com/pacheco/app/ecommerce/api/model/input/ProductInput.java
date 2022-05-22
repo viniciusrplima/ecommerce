@@ -27,9 +27,6 @@ public class ProductInput {
     @Positive
     private BigDecimal price;
 
-    @PositiveOrZero
-    private BigInteger stock;
-
     @NotNull
     private Boolean active;
 

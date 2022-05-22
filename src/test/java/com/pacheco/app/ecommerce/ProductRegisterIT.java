@@ -106,7 +106,6 @@ public class ProductRegisterIT {
             .body("name", is(samsungProd.getName()))
             .body("description", is(samsungProd.getDescription()))
             .body("price", is(samsungProd.getPrice().floatValue()))
-            .body("stock", is(samsungProd.getStock().intValue()))
             .body("active", is(samsungProd.getActive().booleanValue()));
     }
 
@@ -140,7 +139,7 @@ public class ProductRegisterIT {
 
         assertTrue(userResponses.stream().anyMatch(containsString("blank")::matches));
         assertTrue(userResponses.stream().anyMatch(containsString("greater than")::matches));
-        assertTrue(propertyNames.containsAll(List.of("name", "description", "stock", "price", "types")));
+        assertTrue(propertyNames.containsAll(List.of("name", "description", "price", "types")));
     }
 
     @Test
@@ -180,7 +179,7 @@ public class ProductRegisterIT {
 
         assertTrue(userResponses.stream().anyMatch(containsString("blank")::matches));
         assertTrue(userResponses.stream().anyMatch(containsString("greater than")::matches));
-        assertTrue(propertyNames.containsAll(List.of("name", "description", "stock", "price")));
+        assertTrue(propertyNames.containsAll(List.of("name", "description", "price")));
     }
 
     @Test
@@ -209,7 +208,6 @@ public class ProductRegisterIT {
         samsungProd.setDescription("RAM: 2GB, CPU: 1.5GHz, HD: 16GB");
         samsungProd.setPrice(BigDecimal.valueOf(650));
         samsungProd.setActive(Boolean.TRUE);
-        samsungProd.setStock(BigInteger.valueOf(35));
         products.add(samsungProd);
 
         productOutOfStock = new Product();
@@ -217,7 +215,6 @@ public class ProductRegisterIT {
         productOutOfStock.setDescription("Aro: 27cm, Marcha: sim, Freio a disco: sim");
         productOutOfStock.setPrice(BigDecimal.valueOf(895));
         productOutOfStock.setActive(Boolean.TRUE);
-        productOutOfStock.setStock(BigInteger.valueOf(0));
         products.add(productOutOfStock);
 
         productRepository.saveAll(products);

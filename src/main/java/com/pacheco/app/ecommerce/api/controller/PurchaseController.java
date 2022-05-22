@@ -47,7 +47,7 @@ public class PurchaseController {
     @ResponseStatus(HttpStatus.CREATED)
     public PurchaseModel confirmPurchase(@RequestBody @Valid AddressInput address) {
         return purchaseMapper.toRepresentation(
-                purchaseService.confirmPurchase(addressMapper.toModel(address)));
+                purchaseService.confirmPurchase(addressMapper.toModel(address), userService.getCurrentUsername()));
     }
 
     @DeleteMapping
