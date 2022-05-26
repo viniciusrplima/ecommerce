@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.BATCH_DELETE;
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.BATCH_READ;
+import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.BATCH_WRITE;
 import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.PRODUCT_DELETE;
 import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.PRODUCT_READ;
 import static com.pacheco.app.ecommerce.domain.model.account.UserPermission.PRODUCT_WRITE;
@@ -23,13 +26,19 @@ public enum UserRole {
             USER_DELETE,
             PRODUCT_READ,
             PRODUCT_WRITE,
-            PRODUCT_DELETE
+            PRODUCT_DELETE,
+            BATCH_READ,
+            BATCH_WRITE,
+            BATCH_DELETE
     )),
     EMPLOYEE(set(
             USER_READ,
             USER_WRITE,
             PRODUCT_READ,
-            PRODUCT_WRITE
+            PRODUCT_WRITE,
+            BATCH_READ,
+            BATCH_WRITE,
+            BATCH_DELETE
     )),
     CUSTOMER(set(
             PRODUCT_READ

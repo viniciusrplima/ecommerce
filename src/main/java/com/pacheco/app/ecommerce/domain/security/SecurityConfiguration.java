@@ -68,6 +68,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .freeRead()
                     .write(UserPermission.PRODUCT_WRITE)
                     .delete(UserPermission.PRODUCT_DELETE)
+                .permissionTo(Routes.BATCHES)
+                    .read(UserPermission.BATCH_READ)
+                    .write(UserPermission.BATCH_WRITE)
+                    .delete(UserPermission.BATCH_DELETE)
                 .done();
     }
 
