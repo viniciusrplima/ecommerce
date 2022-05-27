@@ -226,7 +226,6 @@ public class ProductTypeRegisterIT {
         product.setPrice(BigDecimal.valueOf(895));
         product.setTypes(List.of(withDependentProdType));
         product.setActive(Boolean.TRUE);
-        product.setStock(BigInteger.valueOf(12));
 
         productRepository.save(product);
     }

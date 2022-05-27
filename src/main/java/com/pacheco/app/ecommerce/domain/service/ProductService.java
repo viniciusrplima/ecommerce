@@ -46,34 +46,6 @@ public class ProductService {
     }
 
     @Transactional
-    public Product getProductFromStock(Long productId, BigInteger quantity) {
-        Product product = findById(productId);
-
-        if (product.getStock().equals(BigInteger.ZERO)) {
-            throw new OutOfStockException(product.getName());
-        }
-
-        if (product.getStock().subtract(quantity).compareTo(BigInteger.ZERO) < 0) {
-            throw new ProductNotEnoughException(product.getName(), product.getStock());
-        }
-
-        product.setStock(product.getStock().subtract(quantity));
-        return repository.save(product);
-    }
-
-    @Transactional
-    public Product replaceProductInStock(Long productId, BigInteger quantity) {
-        Product product = findById(productId);
-        return replaceProductInStock(product, quantity);
-    }
-
-    @Transactional
-    public Product replaceProductInStock(Product product, BigInteger quantity) {
-        product.setStock(product.getStock().add(quantity));
-        return repository.save(product);
-    }
-
-    @Transactional
     public Product updateImage(Long productid, InputStream inputStream, String contentType) {
         Product product = findById(productid);
 

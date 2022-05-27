@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -219,50 +220,6 @@ public class PurchaseRegisterIT {
     }
 
     @Test
-    public void mustReplaceInStockTheProducts_whenCancelPurchase() {
-        ValidatableResponse response = given()
-                .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(getContentFromResource(ADDRESS_JSON_FILE))
-                .when()
-                .post()
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body("state", is(PurchaseState.WAITING.name()))
-                .body("items", hasSize(cart.getItems().size()));
-
-        given()
-            .accept(ContentType.JSON)
-            .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
-            .pathParam("purchaseId", purchase.getId())
-        .when()
-            .delete("/{purchaseId}")
-        .then()
-            .statusCode(HttpStatus.NO_CONTENT.value());
-
-        // Verifying if all products was replaced to stock
-        RestAssured.basePath = Routes.PRODUCTS;
-
-        for (PurchaseItem purchaseItem : purchase.getItems()) {
-            BigInteger prevProductStock = products.stream()
-                    .filter(p -> p.getId().equals(purchaseItem.getProduct().getId()))
-                    .findFirst().get().getStock();
-            BigInteger expectedStock = prevProductStock.add(purchaseItem.getQuantity());
-
-            given()
-                .accept(ContentType.JSON)
-                .header(AUTH_HEADER_PARAM, authenticationUtil.getCustomerToken())
-                .pathParam("productId", purchaseItem.getProduct().getId())
-            .when()
-                .get("/{productId}")
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("stock", is(expectedStock.intValue()));
-        }
-    }
-
-    @Test
     public void mustNotUpdatePurchaseAddress_whenUpdateUserAddress() {
         PurchaseModel expectedPurchase = given()
             .accept(ContentType.JSON)
@@ -315,7 +272,6 @@ public class PurchaseRegisterIT {
         product1.setDescription("RAM: 2GB, CPU: 1.5GHz, HD: 16GB");
         product1.setPrice(BigDecimal.valueOf(650));
         product1.setActive(Boolean.TRUE);
-        product1.setStock(BigInteger.valueOf(35));
         products.add(product1);
 
         Product product2 = new Product();
@@ -323,7 +279,6 @@ public class PurchaseRegisterIT {
         product2.setDescription("Aro: 27cm, Marcha: sim, Freio a disco: sim");
         product2.setPrice(BigDecimal.valueOf(895));
         product2.setActive(Boolean.TRUE);
-        product2.setStock(BigInteger.valueOf(12));
         products.add(product2);
 
         productRepository.saveAll(products);
@@ -333,7 +288,13 @@ public class PurchaseRegisterIT {
 
         List<CartItem> cartItems = new ArrayList<>();
         for (Product product : products) {
-            CartItem cartItem = new CartItem(BigInteger.valueOf(5), product, cart);
+            CartItem cartItem = CartItem.builder()
+                    .quantity(BigInteger.valueOf(5))
+                    .cart(cart)
+                    .product(product)
+                    .reserved(true)
+                    .reservedUntil(LocalDateTime.now())
+                    .build();
             cartItem = cartItemRepository.save(cartItem);
             cartItems.add(cartItem);
         }

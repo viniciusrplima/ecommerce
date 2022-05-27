@@ -125,7 +125,6 @@ public class ProductSearchIT {
         samsungProd.setDescription("RAM: 2GB, CPU: 1.5GHz, HD: 16GB");
         samsungProd.setPrice(BigDecimal.valueOf(650));
         samsungProd.setActive(Boolean.TRUE);
-        samsungProd.setStock(BigInteger.valueOf(35));
         samsungProd.setTypes(List.of(eletronicos));
         products.add(samsungProd);
 
@@ -134,7 +133,6 @@ public class ProductSearchIT {
         product2.setDescription("Aro: 27cm, Marcha: sim, Freio a disco: sim");
         product2.setPrice(BigDecimal.valueOf(895));
         product2.setActive(Boolean.TRUE);
-        product2.setStock(BigInteger.valueOf(12));
         products.add(product2);
 
         productRepository.saveAll(products);

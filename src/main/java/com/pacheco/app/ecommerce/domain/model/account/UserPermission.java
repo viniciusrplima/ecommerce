@@ -11,7 +11,12 @@ public enum UserPermission {
 
     PRODUCT_READ("product:read"),
     PRODUCT_WRITE("product:write"),
-    PRODUCT_DELETE("product:delete");
+    PRODUCT_DELETE("product:delete"),
+
+    BATCH_READ("batch:read"),
+    BATCH_WRITE("batch:write"),
+    BATCH_DELETE("batch:delete");
+
 
     private final String permission;
 

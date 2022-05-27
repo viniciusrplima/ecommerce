@@ -1,5 +1,6 @@
 package com.pacheco.app.ecommerce.domain.service;
 
+import com.pacheco.app.ecommerce.domain.exception.BusinessException;
 import com.pacheco.app.ecommerce.domain.exception.PurchaseNotFoundException;
 import com.pacheco.app.ecommerce.domain.mapper.CartMapper;
 import com.pacheco.app.ecommerce.domain.model.Address;
@@ -8,6 +9,7 @@ import com.pacheco.app.ecommerce.domain.model.Purchase;
 import com.pacheco.app.ecommerce.domain.model.PurchaseItem;
 import com.pacheco.app.ecommerce.domain.model.PurchaseState;
 import com.pacheco.app.ecommerce.domain.repository.AddressRepository;
+import com.pacheco.app.ecommerce.domain.repository.CartItemRepository;
 import com.pacheco.app.ecommerce.domain.repository.CartRepository;
 import com.pacheco.app.ecommerce.domain.repository.PurchaseItemRepository;
 import com.pacheco.app.ecommerce.domain.repository.PurchaseRepository;
@@ -19,15 +21,17 @@ import java.util.List;
 @Service
 public class PurchaseService {
 
-    @Autowired private PurchaseRepository purchaseRepository;
-    @Autowired private PurchaseItemRepository purchaseItemRepository;
-    @Autowired private CartService cartService;
     @Autowired private ProductService productService;
     @Autowired private UserService userService;
+    @Autowired private PurchaseRepository purchaseRepository;
+    @Autowired private CartRepository cartRepository;
+    @Autowired private CartItemRepository cartItemRepository;
+    @Autowired private PurchaseItemRepository purchaseItemRepository;
     @Autowired private AddressRepository addressRepository;
 
-    public Purchase confirmPurchase(Address address) {
-        Cart cart = cartService.finalizeCart();
+    public Purchase confirmPurchase(Address address, String username) {
+        Cart cart = cartRepository.findCartFromUser(username)
+                .orElseThrow(() -> new BusinessException("Cart is empty"));
         addressRepository.save(address);
 
         Purchase purchase = Purchase.builder()
@@ -39,8 +43,11 @@ public class PurchaseService {
 
         List<PurchaseItem> purchaseItemList = CartMapper.toPurchaseItems(cart, purchase);
         purchaseItemRepository.saveAll(purchaseItemList);
-
         purchase.setItems(purchaseItemList);
+
+        cart.getItems().forEach(ci -> cartItemRepository.delete(ci));
+        cartRepository.delete(cart);
+
         return purchase;
     }
 
@@ -67,14 +74,6 @@ public class PurchaseService {
     }
 
     public void cancelPurchase(Long purchaseId) {
-        Purchase purchase = findById(purchaseId);
-
-        purchase.getItems().stream()
-                .forEach(pi -> productService.replaceProductInStock(
-                        pi.getProduct(),
-                        pi.getQuantity()
-                ));
-
-        purchaseRepository.delete(purchase);
+        purchaseRepository.deleteById(purchaseId);
     }
 }

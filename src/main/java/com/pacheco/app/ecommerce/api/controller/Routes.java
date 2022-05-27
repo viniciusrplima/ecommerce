@@ -12,5 +12,6 @@ public class Routes {
     public static final String REGISTER = "/register";
     public static final String EMAIL_VERIFICATION = "/user/verification";
     public static final String PURCHASES = "/purchases";
+    public static final String BATCHES = "/batches";
 
 }
