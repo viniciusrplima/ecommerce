@@ -14,7 +14,7 @@ public class ReserveExpiration {
 
     @Scheduled(fixedRate = UPDATE_RATE_SECS * 1000)
     public void updateCartReserveExpiration() {
-        System.out.println("reserve");
+        cartItemRepository.updateExpiredCartItems();
     }
 
 }
