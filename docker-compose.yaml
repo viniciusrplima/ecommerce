@@ -29,6 +29,17 @@ services:
     networks:
       - ecommerce_network
 
+  ecommerce-front:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ecommerce-front:1.0
+    container_name: ecommerce_front
+    ports:
+      - 3001:3001
+    restart: unless-stopped
+    networks:
+      - ecommerce_network
 
   postgres:
     image: postgres:12.9
