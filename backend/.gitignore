@@ -44,3 +44,7 @@ build/
 ### VS Code ###
 .vscode/
 
+### MISC
+
+.apt_generated
+.apt_generated_tests
