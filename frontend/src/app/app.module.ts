@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import localePt from '@angular/common/locales/pt';
 import { registerLocaleData } from '@angular/common';
+import { SidebarComponent } from './components/templates/sidebar/sidebar.component';
 
 registerLocaleData(localePt);
 
@@ -17,7 +18,8 @@ registerLocaleData(localePt);
   declarations: [
     AppComponent,
     HeaderComponent,
-    ProductReadComponent
+    ProductReadComponent,
+    SidebarComponent
   ],
   imports: [
     BrowserModule,
