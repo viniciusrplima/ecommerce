@@ -1,10 +1,15 @@
 
 
 .header {
+    position: fixed;
     display: grid;
     grid-template-columns: 1fr 4fr 1fr;
     align-items: flex-end;
     height: 60px; 
+    width: 100%;
+    background-color: white;
+    z-index: 1;
+    padding-bottom: 10px;
 }
 
 .link-group {

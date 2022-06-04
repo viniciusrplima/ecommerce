@@ -11,6 +11,7 @@ import { HttpClientModule } from '@angular/common/http';
 import localePt from '@angular/common/locales/pt';
 import { registerLocaleData } from '@angular/common';
 import { SidebarComponent } from './components/templates/sidebar/sidebar.component';
+import { ProductListComponent } from './components/product/product-list/product-list.component';
 
 registerLocaleData(localePt);
 
@@ -19,7 +20,8 @@ registerLocaleData(localePt);
     AppComponent,
     HeaderComponent,
     ProductReadComponent,
-    SidebarComponent
+    SidebarComponent,
+    ProductListComponent,
   ],
   imports: [
     BrowserModule,
