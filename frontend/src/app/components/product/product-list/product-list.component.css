@@ -1,10 +1,9 @@
 
 .container {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
     margin-top: 50px;
     padding: 50px 150px;
     flex-grow: 1;
+    margin-left: 200px;
 }
 
 .sidebar {
@@ -15,7 +14,9 @@
 }
 
 .content {
-    margin-left: 200px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    flex-grow: 1;
 }
 
 .product-card {
@@ -50,8 +51,9 @@
 }
 
 .name {
-    font-size: 14pt;
+    font-size: 12pt;
     font-weight: 400;
+    margin-bottom: 5px;
 }
 
 .price {
