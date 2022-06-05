@@ -1,7 +1,7 @@
 <div class="container">
     <app-sidebar class="sidebar" [category]="category"></app-sidebar>
     <div class="content">
-        <div class="product-card" *ngFor="let product of products" [routerLink]="['/product', product.id]">
+        <div class="product-card" *ngFor="let product of products" [routerLink]="['/products', product.id]">
             <img class="image" [src]="product.publicImageUrl"/>
             <div class="info">
                 <p class="name">{{ product.name }}</p>
