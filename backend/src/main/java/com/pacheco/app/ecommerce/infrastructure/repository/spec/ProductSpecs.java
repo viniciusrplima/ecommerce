@@ -14,10 +14,10 @@ public class ProductSpecs {
                 builder.like(builder.upper(root.get("name")), ("%" + name + "%").toUpperCase());
     }
 
-    public static Specification<Product> withType(Long typeId) {
+    public static Specification<Product> withType(String type) {
         return (root, query, builder) -> {
             Join<Product, ProductType> joined = root.join("types");
-            return builder.equal(joined.get("id"), typeId);
+            return builder.equal(builder.upper(joined.get("name")), type.toUpperCase());
         };
     }
 

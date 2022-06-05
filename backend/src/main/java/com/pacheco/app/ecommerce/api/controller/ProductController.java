@@ -34,7 +34,7 @@ public class ProductController {
     public SearchProductModel getProducts(@RequestParam(value = "q", required = false) String query,
                                           @RequestParam(value = "limit", required = false) Long limit,
                                           @RequestParam(value = "page", required = false) Long page,
-                                          @RequestParam(value = "type", required = false) Long type) {
+                                          @RequestParam(value = "type", required = false) String type) {
         SearchProductModel searchModel = productMapper.toSearchProductRepresentation(
                 repository.findWithAttributes(query, type, limit, page));
 

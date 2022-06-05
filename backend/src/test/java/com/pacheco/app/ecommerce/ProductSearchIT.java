@@ -103,7 +103,7 @@ public class ProductSearchIT {
     public void mustReturnOnlyProductsWithDefinedType_whenSearchProductsByType() {
         ValidatableResponse response = given()
             .accept(ContentType.JSON)
-            .queryParam("type", eletronicos.getId())
+            .queryParam("type", eletronicos.getName())
         .when()
             .get()
         .then()

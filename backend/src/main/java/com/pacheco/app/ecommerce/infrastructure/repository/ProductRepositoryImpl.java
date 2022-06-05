@@ -29,18 +29,18 @@ public class ProductRepositoryImpl implements ProductRepositoryQueries {
 
     @Override
     @Transactional
-    public List<Product> findWithAttributes(String query, Long type, Long limit, Long page) {
+    public List<Product> findWithAttributes(String query, String type, Long limit, Long page) {
         List<Specification<Product>> specs = createSpecifications(query, type);
         return productRepository.findAllPaginated(specs, limit, page);
     }
 
     @Override
-    public Long countWithAttributes(String query, Long type) {
+    public Long countWithAttributes(String query, String type) {
         List<Specification<Product>> specs = createSpecifications(query, type);
         return productRepository.countAll(specs);
     }
 
-    private List<Specification<Product>> createSpecifications(String query, Long type) {
+    private List<Specification<Product>> createSpecifications(String query, String type) {
         List<Specification<Product>> specs = new ArrayList<>();
 
         if (query != null && !query.isBlank()) {
