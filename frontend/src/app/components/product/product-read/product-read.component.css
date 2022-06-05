@@ -1,10 +1,17 @@
 .container {
     margin-top: 100px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     flex-grow: 1;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 50px;
+    height: 100%;
 }
 
 .product-card {

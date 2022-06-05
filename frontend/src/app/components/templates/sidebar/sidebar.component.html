@@ -1,10 +1,15 @@
 <div class="container">
     <p class="title">Categorias</p>
-    <div class="link" *ngFor="let type of productTypes">
-        <div *ngIf="type.name != 'Comida'">
+    <div 
+        class="link" 
+        *ngFor="let type of productTypes" 
+        [routerLink]="['/products']" 
+        [queryParams]="{category: type.name}"
+    >
+        <div *ngIf="type.name != category">
             {{ type.name }}
         </div>
-        <div *ngIf="type.name == 'Comida'" class="marked">
+        <div *ngIf="type.name == category" class="marked">
             {{ type.name }}
         </div>
     </div>

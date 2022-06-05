@@ -1,0 +1,9 @@
+.container {
+    display: flex;
+    flex-grow: 1;
+    width: 100vw;
+}
+
+.router {
+    flex-grow: 1;
+}

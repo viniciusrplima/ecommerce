@@ -12,6 +12,7 @@ import localePt from '@angular/common/locales/pt';
 import { registerLocaleData } from '@angular/common';
 import { SidebarComponent } from './components/templates/sidebar/sidebar.component';
 import { ProductListComponent } from './components/product/product-list/product-list.component';
+import { ProductsComponent } from './views/products/products.component';
 
 registerLocaleData(localePt);
 
@@ -22,6 +23,7 @@ registerLocaleData(localePt);
     ProductReadComponent,
     SidebarComponent,
     ProductListComponent,
+    ProductsComponent,
   ],
   imports: [
     BrowserModule,

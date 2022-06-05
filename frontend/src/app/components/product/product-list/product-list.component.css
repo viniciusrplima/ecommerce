@@ -4,6 +4,18 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
     margin-top: 50px;
     padding: 50px 150px;
+    flex-grow: 1;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 50px;
+    height: 100%;
+}
+
+.content {
+    margin-left: 200px;
 }
 
 .product-card {

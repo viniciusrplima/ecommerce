@@ -1,9 +1,12 @@
 <div class="container">
-    <div class="product-card" *ngFor="let product of products" routerLink="product/{{product.id}}">
-        <img class="image" [src]="product.publicImageUrl"/>
-        <div class="info">
-            <p class="name">{{ product.name }}</p>
-            <p class="price">{{ product.price | currency: 'BRL' }}</p>
+    <app-sidebar class="sidebar" [category]="category"></app-sidebar>
+    <div class="content">
+        <div class="product-card" *ngFor="let product of products" [routerLink]="['/product', product.id]">
+            <img class="image" [src]="product.publicImageUrl"/>
+            <div class="info">
+                <p class="name">{{ product.name }}</p>
+                <p class="price">{{ product.price | currency: 'BRL' }}</p>
+            </div>
         </div>
     </div>
 </div>

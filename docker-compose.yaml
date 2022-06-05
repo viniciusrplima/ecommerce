@@ -51,6 +51,8 @@ services:
       - PGPASSWORD=ecommerce
       - PGDATA=/var/lib/postgresql/data/
     restart: unless-stopped
+    ports:
+      - 5432:5432
     networks:
       - ecommerce_network
     volumes:

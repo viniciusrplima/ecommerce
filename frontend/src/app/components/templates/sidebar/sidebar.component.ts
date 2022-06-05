@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ProductType } from '../../product-type/product-type.model';
 import { ProductTypeService } from '../../product-type/product-type.service';
 
@@ -9,6 +9,7 @@ import { ProductTypeService } from '../../product-type/product-type.service';
 })
 export class SidebarComponent implements OnInit {
 
+  @Input() category: string = '';
   productTypes: ProductType[] = [];
 
   constructor(
@@ -18,7 +19,7 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.productTypeService.list().subscribe(productTypes => {
       this.productTypes = productTypes;
-    })
+    });
   }
 
 }
