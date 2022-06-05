@@ -2,7 +2,9 @@ version: '3.7'
 
 services:
   ecommerce:
-    build: .
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     image: ecommerce:1.0
     container_name: ecommerce
     environment:
@@ -25,6 +27,19 @@ services:
     restart: unless-stopped
     networks:
       - ecommerce_network
+
+  ecommerce-front:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ecommerce-front:1.0
+    container_name: ecommerce_front
+    ports:
+        - 3001:80
+    restart: unless-stopped
+    networks:
+      - ecommerce_network
+
   postgres:
     image: postgres:12.9
     container_name: ecommerce_postgres
@@ -34,9 +49,15 @@ services:
       - POSTGRES_DB=ecommerce
       - PGUSER=ecommerce
       - PGPASSWORD=ecommerce
+      - PGDATA=/var/lib/postgresql/data/
     restart: unless-stopped
+    ports:
+      - 5432:5432
     networks:
       - ecommerce_network
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
 networks:
   ecommerce_network:
     ipam:

@@ -1,0 +1,32 @@
+
+.container {
+    padding: 20px;
+    padding-left: 50px;
+    background-color: white;
+    height: 100%;
+}
+
+.title {
+    margin-top: 50px;
+    font-weight: 400;
+    font-size: 22pt;
+    margin-bottom: 40px;
+}
+
+.link {
+    margin-top: 15px;
+    color: #666;
+    cursor: pointer;
+}
+
+.link div {
+    padding-left: 10px;
+}
+
+.marked {
+    color: black;
+    font-weight: 500;
+    font-size: 16pt;
+    margin-bottom: 20px;
+    border-left: 3px solid #e66300;
+}
