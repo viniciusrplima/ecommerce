@@ -1,5 +1,5 @@
 <div class="container">
-    <div class="product-card" *ngFor="let product of products">
+    <div class="product-card" *ngFor="let product of products" routerLink="product/{{product.id}}">
         <img class="image" [src]="product.publicImageUrl"/>
         <div class="info">
             <p class="name">{{ product.name }}</p>
